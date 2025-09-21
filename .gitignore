@@ -1,0 +1,55 @@
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Android
+/android/
+
+# iOS
+/ios/
+
+# Web
+/web/
+
+# Windows
+/windows/
+
+# macOS
+/macos/
+
+# Linux
+/linux/
+
+# Keys / Config
+.env
+*.keystore
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey.json
+
+# Logs / Temp
+*.log
+*.tmp
+*.bak
+*.out
