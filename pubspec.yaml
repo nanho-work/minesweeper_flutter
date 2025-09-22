@@ -13,6 +13,9 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   google_mobile_ads: ^5.1.0   # ✅ AdMob 패키지 추가
+  provider: ^6.0.5
+  shared_preferences: ^2.2.3
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -25,7 +28,9 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/footer/
     - assets/images/product/
+    - assets/images/game_bg/
     - assets/sounds/
     - assets/icons/
     - assets/data/

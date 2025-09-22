@@ -2,64 +2,59 @@
   {
     "image": "assets/images/product/500gold.png",
     "name": "골드 500",
-    "price": "₩1,000",
+    "price": "20",
     "locked": false,
-    "type": "gold"
+    "type": "gold",
+    "adType": "rewarded"
   },
   {
     "image": "assets/images/product/1500gold.png",
     "name": "골드 1500",
-    "price": "₩2,200",
+    "price": "60",
     "locked": false,
     "type": "gold"
   },
   {
-   "image": "assets/images/product/3000gold.png",
+    "image": "assets/images/product/3000gold.png",
     "name": "골드 3000",
-    "price": "₩4,000",
-    "locked": true,
+    "price": "120",
+    "locked": false,
     "type": "gold"
   },
   {
     "image": "assets/images/product/5000gold.png",
     "name": "골드 5000",
-    "price": "₩8,500",
+    "price": "200",
     "locked": false,
     "type": "gold"
   },
   {
-    "icon": "diamond",
-    "name": "보석 50",
-    "price": "₩2,000",
+    "image": "assets/images/product/20gem.png",
+    "name": "보석 20",
+    "price": "500",
+    "locked": false,
+    "type": "gem",
+    "adType": "rewarded"
+  },
+  {
+    "image": "assets/images/product/100gem.png",
+    "name": "보석 100",
+    "price": "2500",
     "locked": false,
     "type": "gem"
   },
   {
-    "icon": "diamond",
-    "name": "보석 120",
-    "price": "₩4,500",
-    "locked": false,
-    "type": "gem"
-  },
-  {
-    "icon": "diamond",
+    "image": "assets/images/product/300gem.png",
     "name": "보석 300",
-    "price": "₩10,000",
-    "locked": true,
-    "type": "gem"
-  },
-  {
-    "icon": "diamond",
-    "name": "보석 700",
-    "price": "₩21,000",
+    "price": "7500",
     "locked": false,
     "type": "gem"
   },
   {
-    "icon": "diamond",
-    "name": "보석 1500",
-    "price": "₩42,000",
-    "locked": true,
+    "image": "assets/images/product/500gem.png",
+    "name": "보석 500",
+    "price": "12500",
+    "locked": false,
     "type": "gem"
   },
   {
@@ -91,45 +86,31 @@
     "type": "skin"
   },
   {
-    "icon": "palette",
-    "name": "아트 스킨",
-    "price": "₩4,000",
-    "locked": true,
-    "type": "skin"
-  },
-  {
-    "icon": "bolt",
-    "name": "부스터 1시간",
-    "price": "₩1,200",
+    "image": "assets/images/game_bg/game_bg1.png",
+    "name": "게임 배경 1",
+    "price": "10000",
     "locked": false,
-    "type": "booster"
+    "type": "background"
   },
   {
-    "icon": "bolt",
-    "name": "부스터 3시간",
-    "price": "₩2,800",
+    "image": "assets/images/game_bg/game_bg2.png",
+    "name": "게임 배경 2",
+    "price": "20000",
     "locked": false,
-    "type": "booster"
+    "type": "background"
   },
   {
-    "icon": "bolt",
-    "name": "부스터 6시간",
-    "price": "₩5,000",
+    "image": "assets/images/game_bg/game_bg3.png",
+    "name": "게임 배경 3",
+    "price": "30000",
     "locked": true,
-    "type": "booster"
+    "type": "background"
   },
   {
-    "icon": "bolt",
-    "name": "부스터 12시간",
-    "price": "₩9,000",
-    "locked": false,
-    "type": "booster"
-  },
-  {
-    "icon": "bolt",
-    "name": "부스터 24시간",
-    "price": "₩16,000",
+    "image": "assets/images/game_bg/game_bg4.png",
+    "name": "게임 배경 4",
+    "price": "40000",
     "locked": true,
-    "type": "booster"
+    "type": "background"
   }
 ]

@@ -8,7 +8,7 @@ import 'screens/stage_map_screen.dart';
 import 'screens/game_screen.dart';
 import 'widgets/app_header.dart';
 import 'widgets/app_footer.dart';
-import 'models/stage.dart';
+import 'models/game_stage.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -65,69 +65,80 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          double maxWidth = constraints.maxWidth;
-          double maxHeight = constraints.maxHeight;
-          double headerHeight = maxHeight * 0.04;
-
-          // 모바일 (600 이하) → 전체 꽉 채움
-          if (maxWidth < 600) {
-            return SafeArea(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: headerHeight,
-                    child: AppHeader(gems: gems, gold: gold, energy: energy),
-                  ),
-                  Expanded(
-                    child: _activeGameStage != null
-                        ? GameScreen(stage: _activeGameStage!)
-                        : _screens[_selectedIndex],
-                  ),
-                  if (_selectedIndex != 5 && _activeGameStage == null)
-                    SizedBox(
-                      height: 60,
-                      child: AppFooter(
-                        currentIndex: _selectedIndex,
-                        onTap: _onFooterTap,
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }
-
-          // 태블릿/웹 → 중앙에 9:16 박스로 제한
-          return Center(
-            child: AspectRatio(
-              aspectRatio: 9 / 16,
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: headerHeight,
-                      child: AppHeader(gems: gems, gold: gold, energy: energy, showBackButton: _selectedIndex == 5 || _activeGameStage != null),
-                    ),
-                    Expanded(
-                      child: _activeGameStage != null
-                          ? GameScreen(stage: _activeGameStage!)
-                          : _screens[_selectedIndex],
-                    ),
-                    if (_selectedIndex != 5 && _activeGameStage == null)
-                      SizedBox(
-                        height: 60,
-                        child: AppFooter(
-                          currentIndex: _selectedIndex,
-                          onTap: _onFooterTap,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/home_bg.png',
+              fit: BoxFit.cover,
             ),
-          );
-        },
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double maxWidth = constraints.maxWidth;
+              double maxHeight = constraints.maxHeight;
+              double headerHeight = maxHeight * 0.04;
+
+              // 모바일 (600 이하) → 전체 꽉 채움
+              if (maxWidth < 600) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: headerHeight,
+                        child: const AppHeader(),
+                      ),
+                      Expanded(
+                        child: _activeGameStage != null
+                            ? GameScreen(stage: _activeGameStage!)
+                            : _screens[_selectedIndex],
+                      ),
+                      if (_selectedIndex != 5 && _activeGameStage == null)
+                        SizedBox(
+                          height: 120,
+                          child: AppFooter(
+                            currentIndex: _selectedIndex,
+                            onTap: _onFooterTap,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }
+
+              // 태블릿/웹 → 중앙에 9:16 박스로 제한
+              return Center(
+                child: AspectRatio(
+                  aspectRatio: 9 / 16,
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: headerHeight,
+                          child: const AppHeader(),
+                        ),
+                        Expanded(
+                          child: _activeGameStage != null
+                              ? GameScreen(stage: _activeGameStage!)
+                              : _screens[_selectedIndex],
+                        ),
+                        if (_selectedIndex != 5 && _activeGameStage == null)
+                          SizedBox(
+                            height: 120,
+                            child: AppFooter(
+                              currentIndex: _selectedIndex,
+                              onTap: _onFooterTap,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

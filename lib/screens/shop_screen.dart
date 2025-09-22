@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Provider 추가
 import '../models/product.dart';
 import '../widgets/product_grid.dart';
 import '../services/product_service.dart';
 import '../widgets/ad_banner.dart';
+import '../providers/currency_provider.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -12,53 +14,31 @@ class ShopScreen extends StatefulWidget {
 }
 
 class _ShopScreenState extends State<ShopScreen> {
-  ProductType _selectedType = ProductType.gold;
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double spacing = screenWidth < 400 ? 8 : (screenWidth < 800 ? 12 : 20);
-    double sidePadding = screenWidth < 400 ? 8 : 24;
 
     return Scaffold(
+      backgroundColor: Colors.transparent, // ✅ 배경 투명
       body: Stack(
         children: [
-          // 배경 이미지
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/shop_bg.png',
-              fit: BoxFit.cover,
-            ),
-          ),
           Column(
             children: [
-              const AdBanner(),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
+              const SafeArea(child: AdBanner()),
 
-              // 상품 목록
               Expanded(
-                child: ProductGrid(type: _selectedType),
-                ),
-
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: sidePadding),
-                  child: Row(
-                    children: [
-                      _buildTabButton("골드", ProductType.gold),
-                      SizedBox(width: spacing),
-                      _buildTabButton("보석", ProductType.gem),
-                      SizedBox(width: spacing),
-                      _buildTabButton("스킨", ProductType.skin),
-                      SizedBox(width: spacing),
-                      _buildTabButton("부스터", ProductType.booster),
-                    ],
-                  ),
+                child: ListView(
+                  children: [
+                    _buildCategorySection("골드", ProductType.gold),
+                    _buildCategorySection("보석", ProductType.gem),
+                    _buildCategorySection("스킨", ProductType.skin),
+                    _buildCategorySection("", ProductType.background),
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
           ),
         ],
@@ -66,26 +46,18 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  Widget _buildTabButton(String label, ProductType type) {
-    return TextButton(
-      onPressed: () {
-        setState(() => _selectedType = type);
-      },
-      style: TextButton.styleFrom(
-        backgroundColor: _selectedType == type
-            ? Colors.amber.shade200
-            : Colors.grey.shade200,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      ),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
+  Widget _buildCategorySection(String title, ProductType type) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 200,
+            child: ProductGrid(type: type),
+          ),
+        ],
       ),
     );
   }

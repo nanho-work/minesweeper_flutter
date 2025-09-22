@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
-import '../models/stage.dart';
+import '../models/game_stage.dart';
 import '../widgets/stage_node.dart';
 import 'game_screen.dart';
 
-class StageMapScreen extends StatelessWidget {
+class StageMapScreen extends StatefulWidget {
   final void Function(Stage) onStartGame;
 
   const StageMapScreen({super.key, required this.onStartGame});
 
   @override
+  State<StageMapScreen> createState() => _StageMapScreenState();
+}
+
+class _StageMapScreenState extends State<StageMapScreen> {
+  int currentIndex = 0;
+  final stages = sampleStages;
+
+  void _nextStage() {
+    setState(() {
+      if (currentIndex < stages.length - 1) {
+        currentIndex++;
+      }
+    });
+  }
+
+  void _prevStage() {
+    setState(() {
+      if (currentIndex > 0) {
+        currentIndex--;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final stage = stages[currentIndex];
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -20,70 +46,68 @@ class StageMapScreen extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final stages = sampleStages;
-            final count = stages.length;
-
-            // segment를 화면 높이에 맞춰 동적으로 조정하여 한 화면에 2개의 노드만 보이도록 함
-            final double segment = constraints.maxHeight / 2;      // vertical distance between nodes
-            const double topPadding = 80;    // extra space at top
-            const double bottomPadding = 160; // extra space at bottom
-            final double totalHeight = topPadding + bottomPadding + segment * (count - 1) + 240;
-
-            return Center(
-              child: SizedBox(
-                width: constraints.maxWidth * 0.6,
-                height: totalHeight,
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    height: totalHeight,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage('assets/images/path.png'),
-                                fit: BoxFit.none, // 원본 크기 유지
-                                repeat: ImageRepeat.repeatY, // 세로 반복
-                                alignment: Alignment.center, // 중앙 기준
-                              ),
-                            ),
-                          ),
-                        ),
-                        ...List.generate(count, (i) {
-                          final stage = stages[i];
-                          final bool rightSide = i.isEven;
-
-                          // Place nodes from bottom to top visually
-                          final double top = totalHeight - bottomPadding - (i * segment) - 120;
-
-                          return Positioned(
-                            // 스테이지의 세로(위치) 조정 → 위에서부터 얼마나 떨어질지
-                            top: top,
-
-                            // 스테이지의 가로 위치 조정 (오른쪽 기준, 첫 스테이지가 오른쪽에 위치하고 번갈아 배치)
-                            left: rightSide ? null : -110,
-
-                            // 스테이지의 가로 위치 조정 (왼쪽 기준)
-                            right: rightSide ? -0 : null,
-                            
-                            child: StageNode(
-                              stage: stage,
-                              onTap: () {
-                                onStartGame(stage);
-                              },
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
+        child: Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      Text("스테이지 ${stage.id} 기록",
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text("클리어 여부: ${stage.cleared ? "성공" : "실패"}"),
+                      Text("플레이 시간: ${stage.timeTaken ?? '-'}"),
+                      Text("틀린 횟수: ${stage.mistakes ?? '-'}"),
+                    ],
                   ),
                 ),
+
+                // ✅ 중앙: 좌/우 버튼 + 스테이지 이미지 + 이름
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_left, size: 40),
+                        onPressed: _prevStage,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(stage.image, width: 150, height: 150),
+                          const SizedBox(height: 12),
+                          Text(stage.name,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () => widget.onStartGame(stage),
+                            child: const Text("게임 시작"),
+                          )
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_right, size: 40),
+                        onPressed: _nextStage,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40), // 푸터 여백
+              ],
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => Navigator.pop(context),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

@@ -7,6 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent, // ✅ 배경 투명
       body: Center(
         child: ElevatedButton(
           onPressed: () {

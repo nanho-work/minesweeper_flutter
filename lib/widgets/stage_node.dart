@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/stage.dart';
+import '../models/game_stage.dart';
 
-class StageNode extends StatelessWidget {
+class GameStageTile extends StatelessWidget {
   final Stage stage;
   final VoidCallback onTap;
 
-  const StageNode({super.key, required this.stage, required this.onTap});
+  const GameStageTile({super.key, required this.stage, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
