@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/game_session_provider.dart';
 
 class GameCTAbar extends StatelessWidget {
   const GameCTAbar({super.key});
@@ -9,13 +11,19 @@ class GameCTAbar extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton(onPressed: () {}, child: const Text("힌트")),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<GameSessionProvider>(context, listen: false)
+                  .useHint(context);
+            },
+            child: const Icon(Icons.tips_and_updates),
+          ),
           ElevatedButton(onPressed: () {}, child: const Text("레이더")),
           ElevatedButton(onPressed: () {}, child: const Text("시간정지")),
         ],

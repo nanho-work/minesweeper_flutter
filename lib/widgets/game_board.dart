@@ -13,9 +13,11 @@ class GameBoard extends StatelessWidget {
     final engine = session.engine;
 
     return Container(
+      
       // 전체 보드 아웃라인 색상 추가
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 4), // ← 여기
+        color: Colors.transparent,
+        border: Border.all(color: Colors.black38, width: 1), // ← 여기
       ),
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -31,8 +33,8 @@ class GameBoard extends StatelessWidget {
             row: row,
             col: col,
             cell: cell,
-            onTap: () => session.onCellTap(row, col),
-            onLongPress: () => session.onCellLongPress(row, col),
+            onTap: () => session.onCellTap(row, col, context),
+            onLongPress: () => session.onCellLongPress(row, col, context),
           );
         },
       ),

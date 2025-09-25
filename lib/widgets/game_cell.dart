@@ -23,13 +23,13 @@ class GameCell extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        margin: const EdgeInsets.all(1),
+        margin: const EdgeInsets.all(0),
         decoration: BoxDecoration(
           // 셀 구분 라인 색상 추가
-          border: Border.all(color: Colors.black38, width: 1), // ← 여기
+          border: Border.all(color: Colors.blue, width: 1), // ← 여기
           color: cell.isRevealed
-              ? (cell.isMine ? Colors.red : Colors.grey[400])
-              : Colors.grey[300],
+              ? (cell.isMine ? Colors.red : Colors.grey[300])
+              : Colors.grey[200],
         ),
         child: Center(
           child: cell.isRevealed

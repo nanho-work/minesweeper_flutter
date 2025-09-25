@@ -94,68 +94,83 @@ class StageNavigation extends StatelessWidget {
               // 시작 버튼: 에너지 소모 후 게임 시작, 에너지 부족 시 다이얼로그 표시
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.4,
-                child: OutlinedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFF9C4), // 노란색 배경
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6), // 작은 둥근 모서리
-                      side: const BorderSide(color: Colors.orange),
-                    ),
-                    side: const BorderSide(color: Colors.orange),
-                  ),
-                  onPressed: () async {
-                    final appData = context.read<AppDataProvider>();
-                    final ok = await appData.spendEnergy(1); // 에너지 1 소모
-                    if (!ok) {
-                      // 에너지 부족 시 경고 다이얼로그 표시
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("에너지가 부족합니다"),
-                          content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("확인"),
+                child: FutureBuilder<Map<String, dynamic>?>(
+                  future: context.read<AppDataProvider>().loadStageResult(stage.id),
+                  builder: (context, snapshot) {
+                    final stored = snapshot.data;
+                    final isLocked = stored != null && stored.containsKey('locked') ? stored['locked'] as bool : stage.locked;
+                    return OutlinedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFF9C4), // 노란색 배경
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6), // 작은 둥근 모서리
+                          side: const BorderSide(color: Colors.orange),
+                        ),
+                        side: const BorderSide(color: Colors.orange),
+                      ),
+                      onPressed: isLocked ? null : () async {
+                        final appData = context.read<AppDataProvider>();
+                        final ok = await appData.spendEnergy(1); // 에너지 1 소모
+                        if (!ok) {
+                          // 에너지 부족 시 경고 다이얼로그 표시
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("에너지가 부족합니다"),
+                              content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("확인"),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                      return;
-                    }
-                    // 에너지 충분 시 게임 시작 콜백 호출
-                    onStartGame(stage);
-                  },
-                  // 버튼 내부 UI: "시작" 텍스트와 에너지 아이콘 및 개수 표시
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 시작 텍스트
-                      const Text(
-                        "시 작",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      // 에너지 소모 표시 (번개 아이콘 + 개수)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                          children: const [
-                          Icon(Icons.flash_on, color: Colors.green, size: 20),
-                          SizedBox(width: 4),
-                          Text(
-                              "X 5",
+                          );
+                          return;
+                        }
+                        // 에너지 충분 시 게임 시작 콜백 호출
+                        onStartGame(stage);
+                      },
+                      child: isLocked
+                          ? const Text(
+                              "잠김",
                               style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.orange,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               ),
-                          ),
-                          ],
-                      ),
-                    ],
-                  ),
+                            )
+                          : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // 시작 텍스트
+                                const Text(
+                                  "시 작",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                // 에너지 소모 표시 (번개 아이콘 + 개수)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(Icons.flash_on, color: Colors.green, size: 20),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "X 5",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.orange,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                    );
+                  },
                 ),
               ),
             ],

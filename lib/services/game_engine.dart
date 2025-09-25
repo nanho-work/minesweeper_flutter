@@ -79,6 +79,16 @@ class GameEngine {
     return count;
   }
 
+  int get openedMines {
+    int count = 0;
+    for (var row in board) {
+      for (var cell in row) {
+        if (cell.isRevealed && cell.isMine) count++;
+      }
+    }
+    return count;
+  }
+
   /// 특정 위치의 셀을 오픈(공개)하는 메서드
   /// 빈칸(지뢰가 아니고 neighborMines == 0)이면 주변 칸을 재귀적으로 모두 오픈
   void reveal(int row, int col) {

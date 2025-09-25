@@ -20,7 +20,7 @@ class _AdBannerState extends State<AdBanner> {
 
   void _loadAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // ✅ 테스트 광고
+      adUnitId: 'ca-app-pub-5773331970563455/1386948566', //  광고
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppDataProvider extends ChangeNotifier {
-  static const int maxEnergy = 15;
-  static const int rechargeMinutes = 20;
+  static const int maxEnergy = 7;
+  static const int rechargeMinutes = 10;
 
   int gold = 0;
   int gems = 0;
@@ -114,24 +114,80 @@ class AppDataProvider extends ChangeNotifier {
     return false;
   }
 
-  /// ✅ 스테이지 클리어 기록 저장
-  Future<void> saveStageResult(int stageId,
-      {required int stars, required int mistakes, required int elapsed}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = {
-      "stars": stars,
-      "mistakes": mistakes,
-      "elapsed": elapsed,
-      "playedAt": DateTime.now().toIso8601String(),
-    };
-    await prefs.setString("stage_$stageId", jsonEncode(data));
-  }
-
   /// ✅ 스테이지 클리어 기록 불러오기
   Future<Map<String, dynamic>?> loadStageResult(int stageId) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonStr = prefs.getString("stage_$stageId");
     if (jsonStr == null) return null;
-    return jsonDecode(jsonStr);
+    final data = jsonDecode(jsonStr);
+    if (data is Map<String, dynamic> && data['cleared'] == true) {
+      data['locked'] = false;
+    }
+    return data;
+  }
+
+  Future<void> _unlockStage(int stageId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonStr = prefs.getString("stage_$stageId");
+    Map<String, dynamic> data;
+    if (jsonStr != null) {
+      data = jsonDecode(jsonStr);
+      data["locked"] = false;
+    } else {
+      data = {
+        "conditions": [false, false, false],
+        "stars": 0,
+        "cleared": false,
+        "locked": false,
+      };
+    }
+    await prefs.setString("stage_$stageId", jsonEncode(data));
+  }
+
+  /// ✅ 스테이지 클리어 기록 저장 (조건 병합)
+  Future<void> saveStageResult(
+    int stageId, {
+    required List<bool> conditions,
+    required int elapsed,
+    required int mistakes,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 기존 기록 병합
+    final oldData = await loadStageResult(stageId);
+    List<bool> mergedConditions = List.from(conditions);
+
+    int totalElapsed = elapsed;
+    int totalMistakes = mistakes;
+
+    if (oldData != null && oldData['conditions'] != null) {
+      final prev = (oldData['conditions'] as List).map((e) => e == true).toList();
+      for (int i = 0; i < mergedConditions.length; i++) {
+        mergedConditions[i] = mergedConditions[i] || prev[i];
+      }
+
+      // ✅ 누적 합산
+      totalElapsed += (oldData['elapsed'] ?? 0) as int;
+      totalMistakes += (oldData['mistakes'] ?? 0) as int;
+    }
+
+    // 새 데이터
+    final data = {
+      "conditions": mergedConditions,
+      "stars": mergedConditions.where((c) => c).length,
+      "cleared": true, // ✅ 클리어 여부 기록
+      "locked": false, // ✅ 클리어한 스테이지는 항상 오픈 상태 유지
+      "elapsed": totalElapsed,   // ✅ 추가
+      "mistakes": totalMistakes, // ✅ 추가
+      "playedAt": DateTime.now().toIso8601String(),
+    };
+
+    await prefs.setString("stage_$stageId", jsonEncode(data));
+
+    // ✅ 다음 스테이지 자동 언락
+    final nextId = stageId + 1;
+    if (nextId <= 30) {
+      await _unlockStage(nextId);
+    }
   }
 }

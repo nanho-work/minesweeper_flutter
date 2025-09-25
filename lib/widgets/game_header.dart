@@ -13,18 +13,26 @@ class GameHeader extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4),
+        
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("⏱ ${session.elapsed}s",
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
-          Text("♥ ${session.remainingHearts}",
-              style: const TextStyle(color: Colors.red, fontSize: 16)),
+              style: const TextStyle(color: Colors.black87, fontSize: 16)),
+          Row(
+            children: List.generate(session.maxHearts, (index) {
+              if (index < session.remainingHearts) {
+                return const Icon(Icons.favorite, color: Colors.red, size: 20);
+              } else {
+                return const Icon(Icons.favorite_border, color: Colors.red, size: 20);
+              }
+            }),
+          ),
           Text("💣 ${session.remainingMines}",
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
+              style: const TextStyle(color: Colors.black87, fontSize: 16)),
         ],
       ),
     );

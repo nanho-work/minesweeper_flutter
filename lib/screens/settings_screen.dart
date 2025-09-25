@@ -5,10 +5,31 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "설정 화면 (사운드, 언어 등 옵션 예정)",
-        style: TextStyle(fontSize: 18),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('설정'),
+      ),
+      body: ListView(
+        children: [
+          SwitchListTile(
+            title: const Text('배경음'),
+            value: true, // placeholder
+            onChanged: (val) {},
+          ),
+          SwitchListTile(
+            title: const Text('효과음'),
+            value: true, // placeholder
+            onChanged: (val) {},
+          ),
+          ListTile(
+            title: const Text('게임 데이터'),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+          ListTile(
+            title: const Text('기타 정보'),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        ],
       ),
     );
   }

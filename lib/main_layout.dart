@@ -3,7 +3,6 @@ import 'screens/home_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/person_screen.dart';
-import 'screens/help_screen.dart';
 import 'screens/stage_map_screen.dart';
 import 'screens/game_screen.dart';
 import 'widgets/app_header.dart';
@@ -49,9 +48,8 @@ class _MainLayoutState extends State<MainLayout> {
       const ShopScreen(),
       const PersonScreen(),
       const HomeScreen(),
-      const HelpScreen(),
-      const SettingsScreen(),
       StageMapScreen(onStartGame: _startGame),
+      const SettingsScreen(),
       // GameScreen은 리스트에서 제거합니다. (stage 파라미터 필요)
     ];
   }
@@ -70,7 +68,7 @@ class _MainLayoutState extends State<MainLayout> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/home_bg.png',
+              'assets/images/home_bg2.png',
               fit: BoxFit.cover,
             ),
           ),

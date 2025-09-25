@@ -17,7 +17,7 @@ class AppFooter extends StatelessWidget {
       {'icon': 'assets/images/footer/store.png', 'label': '상점'},
       {'icon': 'assets/images/footer/character.png', 'label': '캐릭터'},
       {'icon': 'assets/images/footer/home.png', 'label': '홈'},
-      {'icon': 'assets/images/footer/guide.png', 'label': '게임안내'},
+      {'icon': 'assets/images/footer/guide.png', 'label': '스테이지'},
       {'icon': 'assets/images/footer/setting.png', 'label': '설정'},
     ];
 
@@ -30,7 +30,16 @@ class AppFooter extends StatelessWidget {
     final double bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      color: Colors.transparent,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withOpacity(0.0), // 위는 투명
+            Colors.white.withOpacity(0.9), // 아래는 흰색
+          ],
+        ),
+      ),
       height: footerHeight + bottomInset, // 고정 높이로 오버플로우 방지
       padding: EdgeInsets.only(top: 6, bottom: bottomInset > 0 ? 6 : 8),
       child: Row(

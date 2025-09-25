@@ -8,7 +8,7 @@ class AdService {
   /// ✅ 보상형 광고 로드
   static Future<void> loadRewardedAd() async {
     await RewardedAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/5224354917', // ✅ 테스트용
+      adUnitId: 'ca-app-pub-5773331970563455/7114095570', // ✅ 테스트용
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {

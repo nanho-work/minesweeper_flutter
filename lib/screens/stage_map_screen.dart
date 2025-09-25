@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/game_stage.dart';
 import '../widgets/stage_info_panel.dart';
 import '../widgets/stage_navigation.dart';
+import 'game_screen.dart';
 
 class StageMapScreen extends StatefulWidget {
   final void Function(Stage) onStartGame;
@@ -33,15 +34,11 @@ class _StageMapScreenState extends State<StageMapScreen> {
     final stage = stages[currentIndex];
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/stage_bg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
+        color: Colors.transparent,
         child: Stack(
           children: [
             Column(
@@ -52,7 +49,14 @@ class _StageMapScreenState extends State<StageMapScreen> {
                   stage: stage,
                   onNext: _nextStage,
                   onPrev: _prevStage,
-                  onStartGame: widget.onStartGame,
+                  onStartGame: (selectedStage) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GameScreen(stage: selectedStage),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 40),
               ],
