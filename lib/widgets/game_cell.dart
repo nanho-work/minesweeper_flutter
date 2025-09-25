@@ -25,7 +25,8 @@ class GameCell extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
+          // 셀 구분 라인 색상 추가
+          border: Border.all(color: Colors.black38, width: 1), // ← 여기
           color: cell.isRevealed
               ? (cell.isMine ? Colors.red : Colors.grey[400])
               : Colors.grey[300],

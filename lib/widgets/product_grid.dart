@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
-import '../providers/currency_provider.dart';
+import '../providers/app_data_provider.dart';
 import '../services/ad_service.dart';
 
 class ProductGrid extends StatelessWidget {
@@ -113,7 +113,7 @@ class ProductGrid extends StatelessWidget {
                                       if (product.price.isNotEmpty)
                                         Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                          child: Consumer<CurrencyProvider>(
+                                          child: Consumer<AppDataProvider>(
                                             builder: (context, currencyProvider, _) {
                                               // ✅ 리워드 광고 상품
                                               if (product.adType == "rewarded") {
@@ -123,12 +123,12 @@ class ProductGrid extends StatelessWidget {
                                                       onReward: () {
                                                         final rewardAmount = int.tryParse(product.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
                                                         if (product.type == ProductType.gold) {
-                                                          context.read<CurrencyProvider>().addGold(rewardAmount);
+                                                          context.read<AppDataProvider>().addGold(rewardAmount);
                                                           ScaffoldMessenger.of(context).showSnackBar(
                                                             SnackBar(content: Text("광고 보상으로 골드 $rewardAmount 획득!")),
                                                           );
                                                         } else if (product.type == ProductType.gem) {
-                                                          context.read<CurrencyProvider>().addGems(rewardAmount);
+                                                          context.read<AppDataProvider>().addGems(rewardAmount);
                                                           ScaffoldMessenger.of(context).showSnackBar(
                                                             SnackBar(content: Text("광고 보상으로 보석 $rewardAmount 획득!")),
                                                           );

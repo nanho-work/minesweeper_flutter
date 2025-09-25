@@ -1,3 +1,15 @@
+class StageCondition {
+  final int maxHints;       // 힌트 허용 개수
+  final int maxMistakes;    // 허용 하트 소진 수
+  final int timeLimitSec;   // 제한 시간 (초 단위)
+
+  StageCondition({
+    required this.maxHints,
+    required this.maxMistakes,
+    required this.timeLimitSec,
+  });
+}
+
 class Stage {
   final int id;
   final String name;
@@ -10,6 +22,7 @@ class Stage {
   final String? timeTaken;
   final int? mistakes;
   final DateTime? playedAt;
+  final StageCondition condition;   // ✅ 조건 추가
 
   Stage({
     required this.id,
@@ -19,6 +32,7 @@ class Stage {
     required this.rows,
     required this.cols,
     required this.mines,
+    required this.condition,        // ✅ 필수
     this.cleared = false,
     this.timeTaken,
     this.mistakes,
@@ -36,23 +50,16 @@ final List<Stage> sampleStages = [
     rows: 8,
     cols: 8,
     mines: 10,
+    condition: StageCondition(maxHints: 2, maxMistakes: 0, timeLimitSec: 180),
   ),
   Stage(
     id: 2,
     name: "스테이지 2",
     locked: true,
-    image: "assets/images/stage2.png",
+    image: "assets/images/stage1.png",
     rows: 10,
     cols: 10,
     mines: 20,
-  ),
-  Stage(
-    id: 3,
-    name: "스테이지 3",
-    locked: true,
-    image: "assets/images/stage3.png",
-    rows: 12,
-    cols: 12,
-    mines: 30,
+    condition: StageCondition(maxHints: 1, maxMistakes: 1, timeLimitSec: 300),
   ),
 ];

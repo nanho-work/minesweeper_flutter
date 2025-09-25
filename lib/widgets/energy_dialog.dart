@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/currency_provider.dart';
+import '../providers/app_data_provider.dart';
 import '../services/ad_service.dart';
 
 class EnergyDialog extends StatelessWidget {
@@ -8,7 +8,7 @@ class EnergyDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency = context.read<CurrencyProvider>();
+    final currency = context.read<AppDataProvider>();
 
     return AlertDialog(
       title: const Text("에너지 충전"),
@@ -22,7 +22,7 @@ class EnergyDialog extends StatelessWidget {
               await currency.addEnergy(15);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("보석 10개 사용 → 에너지 5개 충전!")),
+                const SnackBar(content: Text("보석 10개 사용 → 에너지 15개 충전!")),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -41,7 +41,7 @@ class EnergyDialog extends StatelessWidget {
               onReward: () async {
                 await currency.addEnergy(15);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("광고 보상 → 에너지 5개 충전!")),
+                  const SnackBar(content: Text("광고 보상 → 에너지 15개 충전!")),
                 );
               },
             );

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/app_data_provider.dart';
 import '../models/game_stage.dart';
 import '../services/game_engine.dart';
 import '../services/sound_service.dart';
@@ -12,16 +14,12 @@ class GameSessionProvider extends ChangeNotifier {
   int elapsed = 0;
   int mistakes = 0;
   int maxHearts = 3;
+  int attempts = 0;
+  int _starsEarned = 0;
   Timer? _timer;
 
-  /// 게임 오버 시 실행할 콜백
   VoidCallback? onGameOver;
-
-  /// 게임 클리어 시 실행할 콜백
   VoidCallback? onGameClear;
-
-  /// 게임 시도 횟수
-  int attempts = 0;
 
   GameSessionProvider(this.stage) {
     attempts++;
@@ -32,6 +30,7 @@ class GameSessionProvider extends ChangeNotifier {
 
   int get remainingHearts => maxHearts - mistakes;
   int get remainingMines => stage.mines - engine.flagsPlaced;
+  int get starsEarned => _starsEarned;
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -45,25 +44,26 @@ class GameSessionProvider extends ChangeNotifier {
   }
 
   void resetGame() {
-    stopTimer();        // 기존 타이머 중단
-    elapsed = 0;        // 시간 초기화
-    mistakes = 0;       // 실수 초기화
-    engine.init(stage); // 보드 다시 생성
-    attempts++;         // 게임 시도 횟수 증가
-    _startTimer();      // 타이머 다시 시작
-    notifyListeners();  // UI 갱신
+    stopTimer();
+    elapsed = 0;
+    mistakes = 0;
+    engine.init(stage);
+    attempts++;
+    _startTimer();
+    notifyListeners();
   }
 
   void onCellTap(int row, int col) {
-    if (engine.board[row][col].isMine) {
+    final cell = engine.board[row][col];
+    if (!cell.isRevealed && cell.isMine) {
       mistakes++;
       SoundService.playBomb();
       if (remainingHearts <= 0) {
         stopTimer();
         SoundService.playLose();
-        onGameOver?.call(); // 게임 오버 즉시 실행
+        onGameOver?.call();
       }
-    } else {
+    } else if (!cell.isMine) {
       SoundService.playTap();
     }
     engine.reveal(row, col);
@@ -74,17 +74,17 @@ class GameSessionProvider extends ChangeNotifier {
   void onCellLongPress(int row, int col) {
     final cell = engine.board[row][col];
     if (cell.isRevealed && cell.neighborMines > 0) {
-      engine.openAdjacent(row, col);
-      // Check if any newly revealed cell is a mine
-      for (var rowCells in engine.board) {
-        for (var c in rowCells) {
-          if (c.isRevealed && c.isMine) {
-            mistakes++;
-            if (remainingHearts <= 0) {
-              stopTimer();
-              onGameOver?.call();
-              break;
-            }
+      final newlyOpened = engine.openAdjacent(row, col);
+      for (var p in newlyOpened) {
+        final openedCell = engine.board[p.x][p.y];
+        if (openedCell.isMine) {
+          mistakes++;
+          SoundService.playBomb();
+          if (remainingHearts <= 0) {
+            stopTimer();
+            SoundService.playLose();
+            onGameOver?.call();
+            break;
           }
         }
       }
@@ -93,19 +93,36 @@ class GameSessionProvider extends ChangeNotifier {
       SoundService.playFlag();
     }
     notifyListeners();
+    _checkClear();
   }
 
-  /// 모든 지뢰가 아닌 칸이 공개되었는지 확인하는 메서드
+  /// 게임 클리어 판정 및 기록 저장은 외부에서 처리
   void _checkClear() {
+    if (checkClearCondition(stage)) {
+      stopTimer();
+      SoundService.playVictory();
+      onGameClear?.call();
+    }
+  }
+
+  /// 게임 클리어 조건 검사 및 별 개수 계산
+  bool checkClearCondition(Stage stage) {
     for (var row in engine.board) {
       for (var cell in row) {
         if (!cell.isMine && !cell.isRevealed) {
-          return;
+          return false;
         }
       }
     }
-    stopTimer();
-    SoundService.playVictory();
-    onGameClear?.call();
+
+    // ✅ 조건 판정
+    final conditions = [
+      true, // 힌트 조건(미구현 → 임시 true)
+      mistakes <= stage.condition.maxMistakes,
+      elapsed <= stage.condition.timeLimitSec,
+    ];
+
+    _starsEarned = conditions.where((c) => c).length;
+    return true;
   }
 }

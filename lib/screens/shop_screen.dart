@@ -4,7 +4,7 @@ import '../models/product.dart';
 import '../widgets/product_grid.dart';
 import '../services/product_service.dart';
 import '../widgets/ad_banner.dart';
-import '../providers/currency_provider.dart';
+import '../providers/app_data_provider.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});

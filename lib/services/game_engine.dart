@@ -109,13 +109,14 @@ class GameEngine {
   /// 숫자 셀을 롱탭했을 때 주변 셀을 자동으로 여는 메서드
   /// - 주변의 깃발 + 이미 열린 지뢰 칸을 합산하여 카운트
   /// - 이 값이 현재 셀의 숫자와 같으면 나머지 닫힌 칸을 모두 오픈
-  void openAdjacent(int row, int col) {
+  /// - 오픈된 셀들의 좌표 리스트를 반환
+  List<Point<int>> openAdjacent(int row, int col) {
     final cell = board[row][col];
-    if (!cell.isRevealed) return; // 현재 셀이 열려있지 않으면 동작하지 않음
+    if (!cell.isRevealed) return [];
 
-    int markedCount = 0; // 깃발 + 열린 지뢰 카운트
+    int markedCount = 0;
+    List<Point<int>> openedCells = [];
 
-    // 주변 8칸 검사
     for (int dr = -1; dr <= 1; dr++) {
       for (int dc = -1; dc <= 1; dc++) {
         if (dr == 0 && dc == 0) continue;
@@ -130,7 +131,6 @@ class GameEngine {
       }
     }
 
-    // 주변 마킹 수 == 현재 셀의 숫자일 때 나머지 닫힌 셀 오픈
     if (markedCount == cell.neighborMines) {
       for (int dr = -1; dr <= 1; dr++) {
         for (int dc = -1; dc <= 1; dc++) {
@@ -140,18 +140,17 @@ class GameEngine {
           if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
             var neighbor = board[nr][nc];
             if (!neighbor.isRevealed && !neighbor.isFlagged) {
-              // 지뢰가 아닌 경우만 열기
-              if (!neighbor.isMine) {
-                neighbor.isRevealed = true;
-                // 주변 지뢰가 없으면 재귀적으로 열기
-                if (neighbor.neighborMines == 0) {
-                  openAdjacent(nr, nc);
-                }
+              neighbor.isRevealed = true;
+              openedCells.add(Point(nr, nc));
+
+              if (!neighbor.isMine && neighbor.neighborMines == 0) {
+                openedCells.addAll(openAdjacent(nr, nc));
               }
             }
           }
         }
       }
     }
+    return openedCells;
   }
 }

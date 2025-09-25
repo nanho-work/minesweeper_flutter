@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/game_stage.dart';
-import '../widgets/stage_node.dart';
-import 'game_screen.dart';
+import '../widgets/stage_info_panel.dart';
+import '../widgets/stage_navigation.dart';
 
 class StageMapScreen extends StatefulWidget {
   final void Function(Stage) onStartGame;
@@ -18,17 +18,13 @@ class _StageMapScreenState extends State<StageMapScreen> {
 
   void _nextStage() {
     setState(() {
-      if (currentIndex < stages.length - 1) {
-        currentIndex++;
-      }
+      if (currentIndex < stages.length - 1) currentIndex++;
     });
   }
 
   void _prevStage() {
     setState(() {
-      if (currentIndex > 0) {
-        currentIndex--;
-      }
+      if (currentIndex > 0) currentIndex--;
     });
   }
 
@@ -51,53 +47,14 @@ class _StageMapScreenState extends State<StageMapScreen> {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      Text("스테이지 ${stage.id} 기록",
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text("클리어 여부: ${stage.cleared ? "성공" : "실패"}"),
-                      Text("플레이 시간: ${stage.timeTaken ?? '-'}"),
-                      Text("틀린 횟수: ${stage.mistakes ?? '-'}"),
-                    ],
-                  ),
+                StageInfoPanel(stage: stage), // ✅ 분리된 패널
+                StageNavigation(              // ✅ 분리된 네비게이션
+                  stage: stage,
+                  onNext: _nextStage,
+                  onPrev: _prevStage,
+                  onStartGame: widget.onStartGame,
                 ),
-
-                // ✅ 중앙: 좌/우 버튼 + 스테이지 이미지 + 이름
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_left, size: 40),
-                        onPressed: _prevStage,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(stage.image, width: 150, height: 150),
-                          const SizedBox(height: 12),
-                          Text(stage.name,
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () => widget.onStartGame(stage),
-                            child: const Text("게임 시작"),
-                          )
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_right, size: 40),
-                        onPressed: _nextStage,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40), // 푸터 여백
+                const SizedBox(height: 40),
               ],
             ),
             Align(

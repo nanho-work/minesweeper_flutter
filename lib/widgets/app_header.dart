@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/currency_provider.dart';
+import '../providers/app_data_provider.dart';
 import 'energy_dialog.dart'; // ✅ 추가
 
 class AppHeader extends StatelessWidget {
@@ -10,7 +10,7 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency = context.watch<CurrencyProvider>();
+    final currency = context.watch<AppDataProvider>();
 
     String formatDuration(Duration duration) {
       String twoDigits(int n) => n.toString().padLeft(2, '0');

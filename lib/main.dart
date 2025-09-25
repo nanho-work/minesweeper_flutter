@@ -4,7 +4,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 
-import 'providers/currency_provider.dart';
+import 'providers/app_data_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/ad_service.dart'; // ✅ 추가
 import 'services/sound_service.dart';
@@ -31,7 +31,7 @@ void main() async {
   ]);
 
   // ✅ CurrencyProvider 초기화
-  final currencyProvider = CurrencyProvider();
+  final currencyProvider = AppDataProvider();
   await currencyProvider.load();
 
 

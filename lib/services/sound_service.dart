@@ -48,13 +48,12 @@ class SoundService {
   // ✅ 효과음 (BGM 끊기지 않음)
   static Future<void> _playEffect(String file) async {
     final player = AudioPlayer();
-    await player.setAudioContext(_effectContext);
     await player.setReleaseMode(ReleaseMode.stop);
     await player.play(
       AssetSource("sounds/$file"),
       volume: 1.0,
     );
-    player.onPlayerComplete.listen((event) {
+    Future.delayed(const Duration(seconds: 2), () {
       player.dispose();
     });
   }
