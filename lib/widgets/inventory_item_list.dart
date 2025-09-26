@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/inventory_provider.dart';
 import '../providers/product_provider.dart';
 import '../models/product.dart';
+import 'game_button.dart';
 
 class InventoryItemList extends StatelessWidget {
   final String type; // 지뢰 / 깃발 / 버튼
@@ -13,6 +14,38 @@ class InventoryItemList extends StatelessWidget {
     required this.type,
     required this.onItemSelected,
   });
+
+  Widget _buildPreview(Product product) {
+    if (product.type == ProductType.button && product.colors != null) {
+      final closed = product.colors!['closed'];
+
+      if (closed is Map && closed['gradient'] != null && closed['gradient'] is List) {
+        final gradientColors = (closed['gradient'] as List)
+            .whereType<String>()
+            .map((c) => Color(int.parse(c.replaceFirst('#', '0xff'))))
+            .toList();
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        );
+      } else if (closed is String) {
+        return Container(
+          color: Color(int.parse(closed.replaceFirst('#', '0xff'))),
+        );
+      }
+    }
+
+    if (product.image != null) {
+      return Image.asset(product.image!, fit: BoxFit.cover);
+    }
+
+    return const Icon(Icons.help_outline);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +93,7 @@ class InventoryItemList extends StatelessWidget {
                       child: Column(
                         children: [
                           Expanded(
-                            child: product.image != null
-                                ? Image.asset(product.image!, fit: BoxFit.cover)
-                                : const Icon(Icons.image_not_supported),
+                            child: _buildPreview(product),
                           ),
                           Text(
                             product.name,
@@ -98,25 +129,19 @@ class InventoryItemList extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Center(
-              child: SizedBox(
-                width: 70,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (equipped) {
-                      inventory.unequipItem(type);
-                    } else {
-                      inventory.equipItem(type, product.id ?? "");
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(0, 30),
-                    backgroundColor: equipped ? Colors.red : Colors.green,
-                  ),
-                  child: Text(
-                    equipped ? "해제" : "착용",
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ),
+              child: GameButton(
+                text: equipped ? "해제" : "착용",
+                onPressed: () {
+                  if (equipped) {
+                    inventory.unequipItem(type);
+                  } else {
+                    inventory.equipItem(type, product.id ?? "");
+                  }
+                },
+                color: equipped ? Colors.red : Colors.green,
+                textColor: Colors.white,
+                width: 80,
+                height: 30,
               ),
             ),
           ],

@@ -134,6 +134,7 @@ class _GameScreenState extends State<GameScreen> {
             body: SafeArea(
               child: Container(
                 decoration: BoxDecoration(
+                  color: Colors.grey[200], // 기본 배경
                   image: theme.backgroundImage != null
                       ? DecorationImage(
                           image: AssetImage(theme.backgroundImage!),
@@ -143,9 +144,9 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 child: Column(
                   children: const [
-                    SafeArea(child: AdBanner()),
+                    AdBanner(),
                     GameHeader(),
-                    Expanded(child: GameBoard()), // 셀도 테마 반영 필요
+                    Expanded(child: GameBoard()),
                     GameCTAbar(),
                   ],
                 ),

@@ -42,17 +42,15 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppDataProvider()), // 골드/보석
-        ChangeNotifierProvider(create: (_) => ProductProvider()..loadProducts()), // 상품
-        ChangeNotifierProvider(create: (_) => InventoryProvider()..load()), // 인벤토리
+        ChangeNotifierProvider.value(value: currencyProvider), // ✅ 기존 로드된 인스턴스 사용
+        ChangeNotifierProvider(create: (_) => ProductProvider()..loadProducts()),
+        ChangeNotifierProvider(create: (_) => InventoryProvider()..load()),
 
-        // ✅ ThemeProvider: Inventory + ProductProvider 동시 연결
         ChangeNotifierProxyProvider2<InventoryProvider, ProductProvider, ThemeProvider>(
           create: (_) => ThemeProvider(InventoryProvider(), []),
           update: (_, inventory, productProvider, __) =>
               ThemeProvider(inventory, productProvider.products),
         ),
-        // GameSessionProvider는 GameScreen에서 생성
       ],
       child: const MinesweeperApp(),
     ),

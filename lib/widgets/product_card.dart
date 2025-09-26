@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/inventory_provider.dart';
 import '../services/purchase_helper.dart';
+import '../services/ad_limit_service.dart';
+import '../widgets/game_button.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -12,94 +14,68 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50, // 아주 연한 배경색
+        border: Border.all(
+          color: Colors.black,
+          width: 3,
+        ),
+        borderRadius: BorderRadius.circular(4),
       ),
-      clipBehavior: Clip.hardEdge,
-      elevation: 3,
       child: Stack(
         children: [
           Column(
             children: [
-              Expanded(
-                child: _buildPreview(),
-              ),
+              Expanded(child: _buildPreview()),
               if (product.price.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(vertical: 0.0),
                   child: Consumer<InventoryProvider>(
                     builder: (context, inventory, __) {
-                      // ✅ 구매 여부 확인
+                      // ✅ 기존 버튼 로직 그대로 유지
                       final isPurchased = product.id != null &&
                           inventory.isOwned(product.id!);
 
                       if (isPurchased) {
-                        // 이미 구매한 상품이면 "구매 완료" 표시
-                        return ElevatedButton(
-                          onPressed: null, // 비활성화
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey.shade300,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                          ),
-                          child: Text(
-                            "구매 완료",
-                            style: TextStyle(
-                              fontSize: itemWidth * 0.13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
-                          ),
+                        return GameButton(
+                          text: "구매완료",
+                          onPressed: () {},
+                          color: Colors.grey.shade300,
+                          textColor: Colors.black54,
+                          width: itemWidth,
+                          height: 30,
                         );
                       }
 
-                      // ✅ 광고 상품
                       if (product.adType == "rewarded") {
-                        return ElevatedButton(
-                          onPressed: () {
-                            PurchaseHelper.handleRewardedAd(context, product);
+                        return FutureBuilder<int>(
+                          future: AdLimitService.getTodayCount(),
+                          builder: (context, snapshot) {
+                            final count = snapshot.data ?? 0;
+                            return GameButton(
+                              text: "광고 ($count/${AdLimitService.maxAdsPerDay})",
+                              onPressed: () {
+                                PurchaseHelper.handleRewardedAd(context, product);
+                              },
+                              color: Colors.orange.shade300.withOpacity(0.6),
+                              textColor: Colors.black,
+                              width: itemWidth,
+                              height: 30,
+                            );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Colors.orange.shade300.withOpacity(0.6),
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                          ),
-                          child: Text(
-                            "광고",
-                            style: TextStyle(
-                              fontSize: itemWidth * 0.13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
                         );
                       }
 
-                      // ✅ 일반 상품
-                      return ElevatedButton(
+                      return GameButton(
+                        text: "${product.price} ${(product.currency ?? "gold") == "gem" ? "잼" : "골드"}",
                         onPressed: () async {
-                          await PurchaseHelper.purchaseProduct(
-                              context, product);
+                          await PurchaseHelper.purchaseProduct(context, product);
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                        ),
-                        child: Text(
-                          "${product.price} ${(product.currency ?? "gold") == "gem" ? "잼" : "골드"}",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.bold,
-                            fontSize: itemWidth * 0.13,
-                          ),
-                        ),
+                        color: Colors.white,
+                        textColor: Colors.grey[800],
+                        width: itemWidth,
+                        height: 30,
                       );
                     },
                   ),
@@ -155,7 +131,7 @@ class ProductCard extends StatelessWidget {
     if (product.image != null) {
       return Image.asset(
         product.image!,
-        fit: BoxFit.fill,
+        fit: BoxFit.contain, // ✅ 비율 유지하며 맞춤
         width: double.infinity,
       );
     }

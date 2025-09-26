@@ -23,18 +23,16 @@ class AppDataProvider extends ChangeNotifier {
           final add = (energy + gained > maxEnergy) ? maxEnergy - energy : gained;
           if (add > 0) {
             energy += add;
-            lastEnergyUsed = DateTime.now();
+            // 누적 충전을 위해 경과 시간만큼 보정
+            lastEnergyUsed = lastEnergyUsed!.add(Duration(minutes: gained * rechargeMinutes));
             final prefs = await SharedPreferences.getInstance();
             await prefs.setInt('energy', energy);
             await prefs.setString('lastEnergyUsed', lastEnergyUsed!.toIso8601String());
             notifyListeners();
           }
         }
-        final remainder = rechargeMinutes - (elapsed.inMinutes % rechargeMinutes);
-        timeUntilNextEnergy = Duration(
-          minutes: remainder,
-          seconds: 59 - elapsed.inSeconds % 60,
-        );
+        final remainder = rechargeMinutes * 60 - (elapsed.inSeconds % (rechargeMinutes * 60));
+        timeUntilNextEnergy = Duration(seconds: remainder);
       } else {
         timeUntilNextEnergy = Duration.zero;
       }

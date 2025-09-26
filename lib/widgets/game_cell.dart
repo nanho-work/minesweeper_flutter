@@ -32,11 +32,15 @@ class GameCell extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: Colors.blue, width: 1),
           gradient: !cell.isRevealed && theme.buttonGradient != null
-              ? LinearGradient(colors: theme.buttonGradient!)
+              ? LinearGradient(
+                  colors: theme.buttonGradient!,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )
               : null,
           color: cell.isRevealed
               ? (cell.isMine
-                  ? Colors.red
+                  ? (theme.buttonMineColor ?? Colors.red)
                   : theme.buttonOpenColor ?? Colors.grey[300])
               : theme.buttonClosedColor ?? Colors.grey[200],
         ),
@@ -44,8 +48,10 @@ class GameCell extends StatelessWidget {
           child: cell.isRevealed
               ? (cell.isMine
                   ? (theme.mineImage != null
-                      ? Image.asset(theme.mineImage!, width: 16, height: 16)
-                      : const Icon(Icons.circle, color: Colors.black, size: 16))
+                      ? Image.asset(theme.mineImage!,
+                          width: 28, height: 28)
+                      : const Icon(Icons.circle,
+                          color: Colors.black, size: 28))
                   : (cell.neighborMines > 0
                       ? Text(
                           '${cell.neighborMines}',
@@ -57,8 +63,10 @@ class GameCell extends StatelessWidget {
                       : const SizedBox.shrink()))
               : (cell.isFlagged
                   ? (theme.flagImage != null
-                      ? Image.asset(theme.flagImage!, width: 16, height: 16)
-                      : const Icon(Icons.flag, color: Colors.red, size: 16))
+                      ? Image.asset(theme.flagImage!,
+                          width: 28, height: 28)
+                      : Icon(Icons.flag,
+                          color: theme.buttonFlagColor ?? Colors.red, size: 28))
                   : const SizedBox.shrink()),
         ),
       ),

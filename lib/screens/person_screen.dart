@@ -21,7 +21,7 @@ class _PersonScreenState extends State<PersonScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 지뢰/깃발/버튼
+    _tabController = TabController(length: 4, vsync: this); // 지뢰/깃발/버튼/배경
   }
 
   @override
@@ -42,6 +42,7 @@ class _PersonScreenState extends State<PersonScreen>
               Tab(text: "지뢰"),
               Tab(text: "깃발"),
               Tab(text: "버튼"),
+              Tab(text: "배경"),
             ],
           ),
 
@@ -73,6 +74,15 @@ class _PersonScreenState extends State<PersonScreen>
                     setState(() {
                       selectedItemId = id;
                       selectedType = "button";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "background",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "background";
                     });
                   },
                 ),
