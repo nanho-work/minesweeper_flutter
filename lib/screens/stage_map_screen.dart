@@ -58,7 +58,7 @@ class _StageMapScreenState extends State<StageMapScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 80),
               ],
             ),
             Align(

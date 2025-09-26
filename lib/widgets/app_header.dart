@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_data_provider.dart';
-import 'energy_dialog.dart'; // ✅ 추가
+import '../screens/settings_screen.dart'; // ✅ SettingsScreen import
+import 'energy_dialog.dart';
 
 class AppHeader extends StatelessWidget {
-  const AppHeader({
-    super.key,
-  });
+  const AppHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,19 +30,36 @@ class AppHeader extends StatelessWidget {
 
     return Container(
       color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildResource(Image.asset("assets/icons/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
-          _buildResource(Image.asset("assets/icons/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
-          _buildResource(
-            const Icon(Icons.bolt, color: Colors.green),
-            currency.energy,
-            Colors.green,
-            extra: formatDuration(currency.timeUntilNextEnergy),
-            showPlus: true, // ✅ + 버튼 표시
-            context: context,
+          // ===== 리소스 표시 =====
+          Row(
+            children: [
+              _buildResource(Image.asset("assets/icons/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
+              const SizedBox(width: 6),
+              _buildResource(Image.asset("assets/icons/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
+              const SizedBox(width: 6),
+              _buildResource(
+                const Icon(Icons.bolt, color: Colors.green),
+                currency.energy,
+                Colors.green,
+                extra: formatDuration(currency.timeUntilNextEnergy),
+                showPlus: true,
+                context: context,
+              ),
+            ],
+          ),
+
+          // ===== 설정 버튼 =====
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black87),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -80,7 +96,6 @@ class AppHeader extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             extra != null ? "${formatCurrency(value)} ($extra)" : formatCurrency(value),
-            // Optionally, style: TextStyle(color: Colors.white),
           ),
           if (showPlus && context != null) ...[
             const SizedBox(width: 4),

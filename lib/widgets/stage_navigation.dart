@@ -57,117 +57,111 @@ class StageNavigation extends StatelessWidget {
             ),
             onPressed: onPrev,
           ),
-          // 중앙 컬럼: 스테이지 이미지, 이름, 시작 버튼으로 구성
+          // 중앙 컬럼: 스테이지 이름, 이미지, 시작 버튼으로 구성 (순서 변경됨)
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 스테이지 이미지 표시
-              Image.asset(stage.image, width: 200, height: 200),
-              const SizedBox(height:8),
               // 스테이지 이름 텍스트: 흰색 테두리와 검은색 본문 텍스트를 겹쳐서 강조 효과 적용
+              // 픽셀 스타일: 검은색 외곽선, 흰색 채움, 굵은 블록체, 그림자 효과로 도트 느낌 강조
               Stack(
                 children: [
-                  // 흰색 테두리 텍스트
+                  // 검은색 외곽선 텍스트 (두껍게)
                   Text(
                     stage.name,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                       foreground: Paint()
                         ..style = PaintingStyle.stroke
-                        ..strokeWidth = 3
-                        ..color = Colors.white,
+                        ..strokeWidth = 5
+                        ..color = Colors.black,
                     ),
                   ),
-                  // 검은색 본문 텍스트
+                  // 흰색 채움 텍스트 + 픽셀 느낌 그림자 추가
                   Text(
                     stage.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      letterSpacing: 1.2,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1.5, 1.5),
+                          color: Colors.black.withOpacity(0.9),
+                          blurRadius: 0.5,
+                        ),
+                        Shadow(
+                          offset: Offset(-1.5, 1.5),
+                          color: Colors.black.withOpacity(0.9),
+                          blurRadius: 0.5,
+                        ),
+                        Shadow(
+                          offset: Offset(1.5, -1.5),
+                          color: Colors.black.withOpacity(0.9),
+                          blurRadius: 0.5,
+                        ),
+                        Shadow(
+                          offset: Offset(-1.5, -1.5),
+                          color: Colors.black.withOpacity(0.9),
+                          blurRadius: 0.5,
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height:8),
+              // 스테이지 이미지 표시
+              Image.asset(stage.image, width: 200, height: 200),
               const SizedBox(height: 8),
               // 시작 버튼: 에너지 소모 후 게임 시작, 에너지 부족 시 다이얼로그 표시
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
+                width: MediaQuery.of(context).size.width * 0.3,
                 child: FutureBuilder<Map<String, dynamic>?>(
                   future: context.read<AppDataProvider>().loadStageResult(stage.id),
                   builder: (context, snapshot) {
                     final stored = snapshot.data;
                     final isLocked = stored != null && stored.containsKey('locked') ? stored['locked'] as bool : stage.locked;
-                    return OutlinedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFF9C4), // 노란색 배경
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6), // 작은 둥근 모서리
-                          side: const BorderSide(color: Colors.orange),
-                        ),
-                        side: const BorderSide(color: Colors.orange),
-                      ),
-                      onPressed: isLocked ? null : () async {
-                        final appData = context.read<AppDataProvider>();
-                        final ok = await appData.spendEnergy(1); // 에너지 1 소모
-                        if (!ok) {
-                          // 에너지 부족 시 경고 다이얼로그 표시
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("에너지가 부족합니다"),
-                              content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("확인"),
-                                ),
-                              ],
-                            ),
-                          );
-                          return;
-                        }
-                        // 에너지 충분 시 게임 시작 콜백 호출
-                        onStartGame(stage);
-                      },
-                      child: isLocked
-                          ? const Text(
-                              "잠김",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            )
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // 시작 텍스트
-                                const Text(
-                                  "시 작",
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                // 에너지 소모 표시 (번개 아이콘 + 개수)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.flash_on, color: Colors.green, size: 20),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      "X 5",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.orange,
+                    return GestureDetector(
+                      onTap: isLocked
+                          ? null
+                          : () async {
+                              final appData = context.read<AppDataProvider>();
+                              final ok = await appData.spendEnergy(1);
+                              if (!ok) {
+                                // 에너지 부족 시 경고 다이얼로그 표시
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("에너지가 부족합니다"),
+                                    content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("확인"),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                );
+                                return;
+                              }
+                              // 에너지 충분 시 게임 시작 콜백 호출
+                              onStartGame(stage);
+                            },
+                      child: isLocked
+                          ? Image.asset(
+                                "assets/images/unlock.png",
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 50,
+                            )
+                          : Image.asset(
+                                "assets/images/start.png",
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 50,
                             ),
                     );
                   },

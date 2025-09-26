@@ -8,18 +8,37 @@ import '../models/game_stage.dart';
 import '../providers/app_data_provider.dart';
 import '../widgets/dialogs/game_dialog.dart';
 import '../widgets/ad_banner.dart';
+import '../services/sound_service.dart';
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   final Stage stage;
   const GameScreen({super.key, required this.stage});
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  @override
+  void initState() {
+    super.initState();
+    SoundService.playBgm("play.mp3");
+  }
+
+  @override
+  void dispose() {
+    SoundService.stopBgm();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) {
-        final provider = GameSessionProvider(stage);
+        final provider = GameSessionProvider(widget.stage);
 
         provider.onGameOver = () {
+          SoundService.playLose();
           Future.microtask(() {
             showDialog(
               context: context,
@@ -46,10 +65,10 @@ class GameScreen extends StatelessWidget {
         };
 
         provider.onGameClear = () async {
-          if (provider.checkClearCondition(stage, context)) {
+          if (provider.checkClearCondition(widget.stage, context)) {
             final appData = Provider.of<AppDataProvider>(context, listen: false);
             await appData.saveStageResult(
-              stage.id,
+              widget.stage.id,
               conditions: [
                 provider.starsEarned >= 1,
                 provider.starsEarned >= 2,
@@ -58,6 +77,8 @@ class GameScreen extends StatelessWidget {
               elapsed: provider.elapsed,
               mistakes: provider.mistakes,
             );
+
+            SoundService.playVictory();
 
             Future.microtask(() {
               showDialog(
@@ -73,17 +94,17 @@ class GameScreen extends StatelessWidget {
                     cancelText: "스테이지 맵",
                     onConfirm: () {
                       // 현재 스테이지 ID + 1
-                      final nextStageId = stage.id + 1;
+                      final nextStageId = widget.stage.id + 1;
                       // 스테이지 리스트에서 다음 스테이지 찾기
                       final stages = sampleStages;
                       final nextStage = stages.firstWhere(
                         (s) => s.id == nextStageId,
-                        orElse: () => stage,
+                        orElse: () => widget.stage,
                       );
                       // 다이얼로그 닫기
                       Navigator.of(context).pop();
                       // 새로운 GameScreen으로 이동
-                      if (nextStage != stage) {
+                      if (nextStage != widget.stage) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (_) => GameScreen(stage: nextStage),

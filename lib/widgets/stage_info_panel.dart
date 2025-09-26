@@ -15,12 +15,6 @@ class StageInfoPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Text(
-              "스테이지 ${stage.id}",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
           const SizedBox(height: 8),
           FutureBuilder<Map<String, dynamic>?>(
             future: context.read<AppDataProvider>().loadStageResult(stage.id),
@@ -146,7 +140,7 @@ class StageInfoPanel extends StatelessWidget {
                     const Text("클리어 여부: -"),
                     const Text("플레이 시간: -"),
                     const Text("틀린 횟수: -"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
                   ],
                 );
               }
