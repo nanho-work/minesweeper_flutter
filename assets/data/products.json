@@ -5,6 +5,7 @@
     "price": "20",
     "locked": false,
     "type": "gold",
+    "currency": "gem", 
     "adType": "rewarded"
   },
   {
@@ -12,6 +13,7 @@
     "name": "골드 1500",
     "price": "60",
     "locked": false,
+    "currency": "gem", 
     "type": "gold"
   },
   {
@@ -19,6 +21,7 @@
     "name": "골드 3000",
     "price": "120",
     "locked": false,
+    "currency": "gem", 
     "type": "gold"
   },
   {
@@ -26,6 +29,7 @@
     "name": "골드 5000",
     "price": "200",
     "locked": false,
+    "currency": "gem", 
     "type": "gold"
   },
   {
@@ -34,6 +38,7 @@
     "price": "500",
     "locked": false,
     "type": "gem",
+    "currency": "gold", 
     "adType": "rewarded"
   },
   {
@@ -41,6 +46,7 @@
     "name": "보석 100",
     "price": "2500",
     "locked": false,
+    "currency": "gold", 
     "type": "gem"
   },
   {
@@ -48,13 +54,142 @@
     "name": "보석 300",
     "price": "7500",
     "locked": false,
+    "currency": "gold", 
     "type": "gem"
   },
   {
     "image": "assets/images/product/500gem.png",
     "name": "보석 500",
-    "price": "12500",
+    "price": "0",
     "locked": false,
+    "currency": "gold", 
     "type": "gem"
+  },
+  {
+    "id": "mine_skin_1",
+    "name": "boom모양",
+    "price": "300",
+    "locked": false,
+    "type": "mine",
+    "currency": "gem", 
+    "image": "assets/images/skins/boom.png"
+  },
+  {
+    "id": "mine_skin_2",
+    "name": "강아지뼈",
+    "price": "300",
+    "locked": false,
+    "type": "mine",
+    "currency": "gem", 
+    "image": "assets/images/skins/bone.png"
+  },
+  {
+    "id": "mine_skin_3",
+    "name": "도둑",
+    "price": "300",
+    "locked": false,
+    "type": "mine",
+    "currency": "gem", 
+    "image": "assets/images/skins/thief.png"
+  },
+  {
+    "id": "flag_skin_1",
+    "name": "깃발 스킨 1",
+    "price": "300",
+    "locked": false,
+    "type": "flag",
+    "currency": "gem", 
+    "image": "assets/images/skins/flag.png"
+  },
+  {
+    "id": "flag_skin_2",
+    "name": "강아지",
+    "price": "300",
+    "locked": false,
+    "type": "flag",
+    "currency": "gem", 
+    "image": "assets/images/skins/puppy.png"
+  },
+  {
+    "id": "flag_skin_3",
+    "name": "경찰",
+    "price": "300",
+    "locked": false,
+    "type": "flag",
+    "currency": "gem", 
+    "image": "assets/images/skins/police.png"
+  },
+  {
+    "id": "button_skin_1",
+    "name": "오렌지",
+    "price": "300",
+    "locked": false,
+    "type": "button",
+    "currency": "gem", 
+    "colors": {
+      "closed": {
+        "gradient": ["#FFA500", "#FFD580"]
+      },
+      "open": "#FFE4B5",
+      "mine": "#FF4500",
+      "flag": "#32CD32"
+    }
+  },
+{
+    "id": "button_skin_2",
+    "name": "그린",
+    "price": "300",
+    "locked": false,
+    "type": "button",
+    "currency": "gem",
+    "colors": {
+      "closed": {
+        "gradient": ["#228B22", "#7CFC00"] 
+      },
+      "open": "#ADFF2F",
+      "mine": "#006400",
+      "flag": "#00FF7F"
+    }
+  },
+  {
+    "id": "button_skin_3",
+    "name": "블루",
+    "price": "300",
+    "locked": false,
+    "type": "button",
+    "currency": "gem",
+    "colors": {
+      "closed": {
+        "gradient": ["#1E90FF", "#87CEFA"]
+      },
+      "open": "#B0E0E6",
+      "mine": "#00008B",
+      "flag": "#00BFFF"
+    }
+  },
+  {
+    "id": "button_skin_4",
+    "name": "옐로우",
+    "price": "300",
+    "locked": false,
+    "type": "button",
+    "currency": "gem",
+    "colors": {
+      "closed": {
+        "gradient": ["#FFD700", "#FFFACD"]
+      },
+      "open": "#FFFFE0",
+      "mine": "#FFA500",
+      "flag": "#FFD700"
+    }
+  },
+  {
+    "id": "bg_forest",
+    "name": "숲 배경",
+    "price": "500",
+    "locked": false,
+    "type": "background",
+    "currency": "gem", 
+    "image": "assets/images/backgrounds/game_bg1.png"
   }
 ]

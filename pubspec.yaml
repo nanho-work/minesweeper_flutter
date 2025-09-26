@@ -30,7 +30,8 @@ flutter:
     - assets/images/
     - assets/images/footer/
     - assets/images/product/
-    - assets/images/game_bg/
+    - assets/images/skins/
+    - assets/images/backgrounds/
     - assets/sounds/
     - assets/icons/
     - assets/data/

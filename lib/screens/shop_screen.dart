@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Provider 추가
+import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../widgets/product_grid.dart';
-import '../services/product_service.dart';
 import '../widgets/ad_banner.dart';
-import '../providers/app_data_provider.dart';
+import '../providers/product_provider.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -15,9 +14,16 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
   @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+  void initState() {
+    super.initState();
+    // ✅ Provider에서 상품 불러오기 (앱 실행 시 1회)
+    Future.microtask(() {
+      context.read<ProductProvider>().loadProducts();
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent, // ✅ 배경 투명
       body: Stack(
@@ -32,8 +38,10 @@ class _ShopScreenState extends State<ShopScreen> {
                   children: [
                     _buildCategorySection("골드", ProductType.gold),
                     _buildCategorySection("보석", ProductType.gem),
-                    _buildCategorySection("스킨", ProductType.skin),
-                    _buildCategorySection("", ProductType.background),
+                    _buildCategorySection("지뢰", ProductType.mine),
+                    _buildCategorySection("깃발", ProductType.flag),
+                    _buildCategorySection("버튼", ProductType.button),
+                    _buildCategorySection("배경", ProductType.background),
                   ],
                 ),
               ),
@@ -55,7 +63,7 @@ class _ShopScreenState extends State<ShopScreen> {
         children: [
           SizedBox(
             height: 200,
-            child: ProductGrid(type: type),
+            child: ProductGrid(type: type), // ✅ Provider 기반으로 상품 표시
           ),
         ],
       ),

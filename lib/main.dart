@@ -1,3 +1,5 @@
+// lib/main.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -5,8 +7,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 
 import 'providers/app_data_provider.dart';
+import 'providers/product_provider.dart';
+import 'providers/inventory_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
-import 'services/ad_service.dart'; // ✅ 추가
+import 'services/ad_service.dart';
 import 'services/sound_service.dart';
 
 void main() async {
@@ -34,10 +39,21 @@ void main() async {
   final currencyProvider = AppDataProvider();
   await currencyProvider.load();
 
-
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => currencyProvider,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppDataProvider()), // 골드/보석
+        ChangeNotifierProvider(create: (_) => ProductProvider()..loadProducts()), // 상품
+        ChangeNotifierProvider(create: (_) => InventoryProvider()..load()), // 인벤토리
+
+        // ✅ ThemeProvider: Inventory + ProductProvider 동시 연결
+        ChangeNotifierProxyProvider2<InventoryProvider, ProductProvider, ThemeProvider>(
+          create: (_) => ThemeProvider(InventoryProvider(), []),
+          update: (_, inventory, productProvider, __) =>
+              ThemeProvider(inventory, productProvider.products),
+        ),
+        // GameSessionProvider는 GameScreen에서 생성
+      ],
       child: const MinesweeperApp(),
     ),
   );
@@ -50,7 +66,8 @@ class MinesweeperApp extends StatefulWidget {
   State<MinesweeperApp> createState() => _MinesweeperAppState();
 }
 
-class _MinesweeperAppState extends State<MinesweeperApp> with WidgetsBindingObserver {
+class _MinesweeperAppState extends State<MinesweeperApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -78,7 +95,7 @@ class _MinesweeperAppState extends State<MinesweeperApp> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // 첫 화면 = 스플래쉬
+      home: SplashScreen(),
     );
   }
 }

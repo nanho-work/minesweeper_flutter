@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/game_session_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/game_header.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_cta_bar.dart';
@@ -125,22 +126,26 @@ class _GameScreenState extends State<GameScreen> {
 
         return provider;
       },
-      child: Consumer<GameSessionProvider>(
-        builder: (context, session, _) {
+      child: Consumer2<GameSessionProvider, ThemeProvider>(
+        builder: (context, session, themeProvider, _) {
+          final theme = themeProvider.currentTheme;
+
           return Scaffold(
             body: SafeArea(
               child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/background-texture-sky.png"),
-                    fit: BoxFit.cover,
-                  ),
+                decoration: BoxDecoration(
+                  image: theme.backgroundImage != null
+                      ? DecorationImage(
+                          image: AssetImage(theme.backgroundImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 child: Column(
                   children: const [
                     SafeArea(child: AdBanner()),
                     GameHeader(),
-                    Expanded(child: GameBoard()),
+                    Expanded(child: GameBoard()), // 셀도 테마 반영 필요
                     GameCTAbar(),
                   ],
                 ),
