@@ -21,7 +21,7 @@ class _PersonScreenState extends State<PersonScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this); // 지뢰/깃발/버튼/배경
+    _tabController = TabController(length: 9, vsync: this); // 지뢰/깃발/버튼/배경/캐릭터/헤어/상의/하의/신발
   }
 
   @override
@@ -30,20 +30,69 @@ class _PersonScreenState extends State<PersonScreen>
       backgroundColor: Colors.transparent,
       body: Column(
         children: [
-          const SafeArea(child: AdBanner()),
-
           // 탭 메뉴
-          TabBar(
-            controller: _tabController,
-            indicatorColor: Colors.transparent, // 업로드 이미지처럼 선 제거
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            tabs: const [
-              Tab(text: "지뢰"),
-              Tab(text: "깃발"),
-              Tab(text: "버튼"),
-              Tab(text: "배경"),
-            ],
+          PreferredSize(
+            preferredSize: const Size.fromHeight(90), // enough for 3 lines
+            child: Stack(
+              children: [
+                Container(
+                  color: Colors.pink[50],
+                  padding: const EdgeInsets.only(right: 40),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicatorColor: Colors.transparent,
+                    labelStyle: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.red[400],
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 0),
+                          blurRadius: 3,
+                          color: Colors.pink,
+                        ),
+                      ],
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    isScrollable: true,
+                    // tabAlignment: TabAlignment.start, // Uncomment if available in your Flutter version
+                    tabs: const [
+                      Tab(text: "지뢰"),
+                      Tab(text: "깃발"),
+                      Tab(text: "버튼"),
+                      Tab(text: "배경"),
+                      Tab(text: "캐릭터"),
+                      Tab(text: "헤어"),
+                      Tab(text: "상의"),
+                      Tab(text: "하의"),
+                      Tab(text: "신발"),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 40,
+                    child: Image.asset("assets/images/left.png", fit: BoxFit.contain),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 40,
+                    child: Image.asset("assets/images/right.png", fit: BoxFit.contain),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           Expanded(
@@ -83,6 +132,51 @@ class _PersonScreenState extends State<PersonScreen>
                     setState(() {
                       selectedItemId = id;
                       selectedType = "background";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "character",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "character";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "hair",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "hair";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "top",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "top";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "bottom",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "bottom";
+                    });
+                  },
+                ),
+                InventoryItemList(
+                  type: "shoes",
+                  onItemSelected: (id) {
+                    setState(() {
+                      selectedItemId = id;
+                      selectedType = "shoes";
                     });
                   },
                 ),

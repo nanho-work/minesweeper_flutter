@@ -27,13 +27,13 @@ class ProductGrid extends StatelessWidget {
             final spacing = 12.0;
             final itemWidth =
                 (constraints.maxWidth - (spacing * 3) - 16) / 3;
-            const double heightFactor = 1.8;
+            const double heightFactor = 0.5;
 
             return SizedBox(
               height: itemWidth * heightFactor,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(6, 10, 6, 4),
+                padding: const EdgeInsets.fromLTRB(6, 5, 6, 4),
                 itemCount: filtered.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
                 itemBuilder: (context, idx) {

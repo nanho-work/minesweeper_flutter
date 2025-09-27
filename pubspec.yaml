@@ -32,6 +32,7 @@ flutter:
     - assets/images/product/
     - assets/images/skins/
     - assets/images/backgrounds/
+    - assets/images/avatar/
     - assets/sounds/
     - assets/icons/
     - assets/data/

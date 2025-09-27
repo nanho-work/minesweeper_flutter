@@ -14,89 +14,90 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50, // 아주 연한 배경색
-        border: Border.all(
-          color: Colors.black,
-          width: 3,
-        ),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(child: _buildPreview()),
-              if (product.price.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 0.0),
-                  child: Consumer<InventoryProvider>(
-                    builder: (context, inventory, __) {
-                      // ✅ 기존 버튼 로직 그대로 유지
-                      final isPurchased = product.id != null &&
-                          inventory.isOwned(product.id!);
-
-                      if (isPurchased) {
-                        return GameButton(
-                          text: "구매완료",
-                          onPressed: () {},
-                          color: Colors.grey.shade300,
-                          textColor: Colors.black54,
-                          width: itemWidth,
-                          height: 30,
-                        );
-                      }
-
-                      if (product.adType == "rewarded") {
-                        return FutureBuilder<int>(
-                          future: AdLimitService.getTodayCount(),
-                          builder: (context, snapshot) {
-                            final count = snapshot.data ?? 0;
-                            return GameButton(
-                              text: "광고 ($count/${AdLimitService.maxAdsPerDay})",
-                              onPressed: () {
-                                PurchaseHelper.handleRewardedAd(context, product);
-                              },
-                              color: Colors.orange.shade300.withOpacity(0.6),
-                              textColor: Colors.black,
-                              width: itemWidth,
-                              height: 30,
-                            );
-                          },
-                        );
-                      }
-
-                      return GameButton(
-                        text: "${product.price} ${(product.currency ?? "gold") == "gem" ? "잼" : "골드"}",
-                        onPressed: () async {
-                          await PurchaseHelper.purchaseProduct(context, product);
-                        },
-                        color: Colors.white,
-                        textColor: Colors.grey[800],
-                        width: itemWidth,
-                        height: 30,
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-          if (product.locked)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.4),
-                child: const Center(
-                  child: Icon(
-                    Icons.lock,
-                    color: Colors.white,
-                    size: 36,
-                  ),
-                ),
+    return Column(
+      children: [
+        SizedBox(
+          height: itemWidth * 1.2,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.amber.shade50, // 아주 연한 배경색
+              border: Border.all(
+                color: Colors.black,
+                width: 3,
               ),
+              borderRadius: BorderRadius.circular(8),
             ),
-        ],
-      ),
+            child: Stack(
+              children: [
+                _buildPreview(),
+                if (product.locked)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.4),
+                      child: const Center(
+                        child: Icon(
+                          Icons.lock,
+                          color: Colors.white,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        if (product.price.isNotEmpty)
+          Consumer<InventoryProvider>(
+            builder: (context, inventory, __) {
+              // ✅ 기존 버튼 로직 그대로 유지
+              final isPurchased = product.id != null &&
+                  inventory.isOwned(product.id!);
+
+              if (isPurchased) {
+                return GameButton(
+                  text: "보유중",
+                  onPressed: () {},
+                  color: Colors.grey.shade300,
+                  textColor: Colors.black54,
+                  width: itemWidth,
+                  height: 30,
+                );
+              }
+
+              if (product.adType == "rewarded") {
+                return FutureBuilder<int>(
+                  future: AdLimitService.getTodayCount(),
+                  builder: (context, snapshot) {
+                    final count = snapshot.data ?? 0;
+                    return GameButton(
+                      text: "광고 ($count/${AdLimitService.maxAdsPerDay})",
+                      onPressed: () {
+                        PurchaseHelper.handleRewardedAd(context, product);
+                      },
+                      color: Colors.orange.shade300.withOpacity(0.6),
+                      textColor: Colors.black,
+                      width: itemWidth,
+                      height: 30,
+                    );
+                  },
+                );
+              }
+
+              return GameButton(
+                text: "${product.price} ${(product.currency ?? "gold") == "gem" ? "잼" : "골드"}",
+                onPressed: () async {
+                  await PurchaseHelper.purchaseProduct(context, product);
+                },
+                color: Colors.white,
+                textColor: Colors.grey[800],
+                width: itemWidth,
+                height: 30,
+              );
+            },
+          ),
+      ],
     );
   }
 

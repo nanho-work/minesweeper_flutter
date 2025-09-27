@@ -1,5 +1,48 @@
 [
   {
+    "id": "default_button",
+    "name": "기본 버튼",
+    "price": "0",
+    "locked": false,
+    "type": "button",
+    "currency": "gold",
+    "colors": {
+      "closed": {
+        "gradient": ["#DDDDDD", "#CCCCCC"]
+      },
+      "open": "#EEEEEE",
+      "mine": "#FF0000",
+      "flag": "#0000FF"
+    }
+  },
+  {
+    "id": "default_mine",
+    "name": "기본 지뢰",
+    "price": "0",
+    "locked": false,
+    "type": "mine",
+    "currency": "gold",
+    "image": "assets/images/skins/mine_default.png"
+  },
+  {
+    "id": "default_flag",
+    "name": "기본 깃발",
+    "price": "0",
+    "locked": false,
+    "type": "flag",
+    "currency": "gold",
+    "image": "assets/images/skins/flag_default.png"
+  },
+  {
+    "id": "default_bg",
+    "name": "기본 배경",
+    "price": "0",
+    "locked": false,
+    "type": "background",
+    "currency": "gold",
+    "image": "assets/images/skins/bg_default.png"
+  },
+  {
     "image": "assets/images/product/500gold.png",
     "name": "골드 500",
     "price": "20",
@@ -81,7 +124,7 @@
     "locked": false,
     "type": "mine",
     "currency": "gem", 
-    "image": "assets/images/skins/bone.png"
+    "image": "assets/images/skins/mine_bone.png"
   },
   {
     "id": "mine_skin_3",
@@ -99,7 +142,7 @@
     "locked": false,
     "type": "mine",
     "currency": "gem", 
-    "image": "assets/images/skins/fishbone.png"
+    "image": "assets/images/skins/mine_fishbone.png"
   },
   {
     "id": "flag_skin_1",
@@ -117,7 +160,7 @@
     "locked": false,
     "type": "flag",
     "currency": "gem", 
-    "image": "assets/images/skins/puppy.png"
+    "image": "assets/images/skins/flag_puppy.png"
   },
   {
     "id": "flag_skin_3",
@@ -135,7 +178,7 @@
     "locked": false,
     "type": "flag",
     "currency": "gem", 
-    "image": "assets/images/skins/cat.png"
+    "image": "assets/images/skins/flag_cat.png"
   },
   {
     "id": "button_skin_1",
@@ -266,5 +309,50 @@
     "type": "background",
     "currency": "gem", 
     "image": "assets/images/skins/bg_lemon.png"
+  },
+    {
+    "id": "character_base_male",
+    "name": "남자 기본 베이스",
+    "price": "0",
+    "locked": false,
+    "type": "character",
+    "currency": "gold",
+    "image": "assets/images/avatar/Character_base.png"
+  },
+  {
+    "id": "hair_dendy",
+    "name": "댄디컷",
+    "price": "200",
+    "locked": false,
+    "type": "hair",
+    "currency": "gem",
+    "image": "assets/images/avatar/hair_dendy.png"
+  },
+  {
+    "id": "shirt_short_red",
+    "name": "빨간반팔",
+    "price": "300",
+    "locked": false,
+    "type": "top",
+    "currency": "gem",
+    "image": "assets/images/avatar/shirt_short_red.png"
+  },
+  {
+    "id": "pants_blue",
+    "name": "파란반바지",
+    "price": "250",
+    "locked": false,
+    "type": "bottom",
+    "currency": "gem",
+    "image": "assets/images/avatar/pants_blue.png"
+  },
+  {
+    "id": "slippers_black",
+    "name": "검정 슬리퍼",
+    "price": "150",
+    "locked": false,
+    "type": "shoes",
+    "currency": "gem",
+    "image": "assets/images/avatar/slippers.png"
   }
 ]

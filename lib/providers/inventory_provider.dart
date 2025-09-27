@@ -20,6 +20,7 @@ class InventoryProvider extends ChangeNotifier {
     if (equippedStr != null && equippedStr.isNotEmpty) {
       equippedItems = Map<String, String>.from(jsonDecode(equippedStr));
     }
+    _ensureDefaultItems();
     notifyListeners();
   }
 
@@ -81,5 +82,26 @@ class InventoryProvider extends ChangeNotifier {
     await prefs.remove('ownedItems');
     await prefs.remove('equippedItems');
     notifyListeners();
+  }
+
+  /// ✅ 항상 기본 아이템을 보유 및 착용하도록 보장
+  void _ensureDefaultItems() {
+    final defaultItems = <String, String>{
+      "button": "default_button",
+      "mine": "default_mine",
+      "flag": "default_flag",
+      "background": "default_bg",
+      "character": "character_base_male",
+    };
+    for (final entry in defaultItems.entries) {
+      final type = entry.key;
+      final itemId = entry.value;
+      if (!ownedItems.contains(itemId)) {
+        ownedItems.add(itemId);
+      }
+      if (equippedItems[type] != itemId) {
+        equippedItems[type] = itemId;
+      }
+    }
   }
 }

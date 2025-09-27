@@ -48,7 +48,8 @@ class ThemeProvider extends ChangeNotifier {
   /// 이미지 스킨 (지뢰/깃발/배경)
   String? _resolveImage(String? itemId) {
     if (itemId == null || itemId.isEmpty) {
-      return "assets/images/background-texture-sky.png"; // ✅ 기본 배경
+      // 인벤토리에서 기본 스킨을 항상 세팅해주므로 별도 기본 경로 불필요
+      return null;
     }
 
     final product = _allProducts.firstWhere(
@@ -56,10 +57,7 @@ class ThemeProvider extends ChangeNotifier {
       orElse: () => Product(id: null, name: '', price: '', type: ProductType.gold),
     );
 
-    return product.image ??
-        (itemId == "background"
-            ? "assets/images/skins/bg_Default.png"
-            : null);
+    return product.image; // 기본 배경 경로 강제 지정 제거
   }
 
   /// HEX → Color 변환

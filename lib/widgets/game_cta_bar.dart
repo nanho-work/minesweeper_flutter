@@ -4,7 +4,14 @@ import '../providers/game_session_provider.dart';
 import 'game_button.dart';
 
 class GameCTAbar extends StatelessWidget {
-  const GameCTAbar({super.key});
+  final VoidCallback onExit;
+  final VoidCallback onRestart;
+
+  const GameCTAbar({
+    super.key,
+    required this.onExit,
+    required this.onRestart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,14 +35,12 @@ class GameCTAbar extends StatelessWidget {
           GameButton(
             text: "새게임",
             onPressed: () {
-              Provider.of<GameSessionProvider>(context, listen: false).resetGame();
+              context.read<GameSessionProvider>().resetGame();
             },
           ),
           GameButton(
-            text: "stage",
-            onPressed: () {
-              Navigator.of(context).maybePop();
-            },
+            text: "Stage",
+            onPressed: onExit, // ✅ 수정
           ),
         ],
       ),

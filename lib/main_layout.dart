@@ -1,7 +1,8 @@
+import 'package:provider/provider.dart'; 
+
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/shop_screen.dart';
-import 'screens/settings_screen.dart';
 import 'screens/person_screen.dart';
 import 'screens/stage_map_screen.dart';
 import 'screens/game_screen.dart';
@@ -9,6 +10,7 @@ import 'screens/help_screen.dart';
 import 'widgets/app_header.dart';
 import 'widgets/app_footer.dart';
 import 'models/game_stage.dart';
+import '../providers/app_data_provider.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -33,6 +35,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _activeGameStage = null;
     });
+    context.read<AppDataProvider>().exitGameBgm(); // ✅ 통일된 API 사용
   }
 
   late final List<Widget> _screens;
@@ -71,7 +74,7 @@ class _MainLayoutState extends State<MainLayout> {
             builder: (context, constraints) {
               double maxWidth = constraints.maxWidth;
               double maxHeight = constraints.maxHeight;
-              double headerHeight = maxHeight * 0.04;
+              double headerHeight = maxHeight * 0.13;
 
               if (maxWidth < 600) {
                 return SafeArea(
@@ -83,7 +86,11 @@ class _MainLayoutState extends State<MainLayout> {
                       ),
                       Expanded(
                         child: _activeGameStage != null
-                            ? GameScreen(stage: _activeGameStage!)
+                            ? GameScreen(
+                                stage: _activeGameStage!,
+                                onExit: _exitGame,
+                                onRestart: () => _startGame(_activeGameStage!),
+                              )
                             : _screens[_selectedIndex],
                       ),
                       if (_activeGameStage == null)
@@ -112,7 +119,11 @@ class _MainLayoutState extends State<MainLayout> {
                         ),
                         Expanded(
                           child: _activeGameStage != null
-                              ? GameScreen(stage: _activeGameStage!)
+                              ? GameScreen(
+                                  stage: _activeGameStage!,
+                                  onExit: _exitGame,
+                                  onRestart: () => _startGame(_activeGameStage!),
+                                )
                               : _screens[_selectedIndex],
                         ),
                         if (_activeGameStage == null)

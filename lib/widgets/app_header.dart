@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_data_provider.dart';
 import '../screens/settings_screen.dart'; // ✅ SettingsScreen import
-import 'energy_dialog.dart';
+import 'dialogs/energy_dialog.dart';
+import 'ad_banner.dart';
+import 'dialogs/settings_dialog.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({super.key});
@@ -31,36 +33,43 @@ class AppHeader extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          // ===== 리소스 표시 =====
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildResource(Image.asset("assets/icons/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
-              const SizedBox(width: 6),
-              _buildResource(Image.asset("assets/icons/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
-              const SizedBox(width: 6),
-              _buildResource(
-                const Icon(Icons.bolt, color: Colors.green),
-                currency.energy,
-                Colors.green,
-                extra: formatDuration(currency.timeUntilNextEnergy),
-                showPlus: true,
-                context: context,
+              // ===== 리소스 표시 =====
+              Row(
+                children: [
+                  _buildResource(Image.asset("assets/icons/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
+                  const SizedBox(width: 6),
+                  _buildResource(Image.asset("assets/icons/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
+                  const SizedBox(width: 6),
+                  _buildResource(
+                    const Icon(Icons.flash_on, color: Colors.orange),
+                    currency.energy,
+                    Colors.orange,
+                    extra: formatDuration(currency.timeUntilNextEnergy),
+                    showPlus: true,
+                    context: context,
+                  ),
+                ],
+              ),
+
+              // ===== 설정 버튼 =====
+              IconButton(
+                icon: const Icon(Icons.settings, color: Colors.black87),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const SettingsDialog(), // ✅ 새 다이얼로그 띄우기
+                  );
+                },
               ),
             ],
           ),
-
-          // ===== 설정 버튼 =====
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black87),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
-          ),
+          const SizedBox(height: 4),
+          const SizedBox(height: 50, child: AdBanner()),
         ],
       ),
     );

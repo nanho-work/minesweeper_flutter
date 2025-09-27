@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/game_stage.dart';
+import '../providers/app_data_provider.dart';
 import '../widgets/stage_info_panel.dart';
 import '../widgets/stage_navigation.dart';
 import 'game_screen.dart';
@@ -16,6 +18,27 @@ class StageMapScreen extends StatefulWidget {
 class _StageMapScreenState extends State<StageMapScreen> {
   int currentIndex = 0;
   final stages = sampleStages;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final appDataProvider = context.read<AppDataProvider>();
+      for (int i = 0; i < stages.length; i++) {
+        final stage = stages[i];
+        final result = await appDataProvider.loadStageResult(stage.id);
+        final isCleared = result != null && result['cleared'] == true;
+        final isUnlocked = result != null ? result['locked'] == false : !stage.locked;
+
+        if (isUnlocked && !isCleared) {
+          setState(() {
+            currentIndex = i;
+          });
+          break;
+        }
+      }
+    });
+  }
 
   void _nextStage() {
     setState(() {
@@ -50,12 +73,7 @@ class _StageMapScreenState extends State<StageMapScreen> {
                   onNext: _nextStage,
                   onPrev: _prevStage,
                   onStartGame: (selectedStage) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GameScreen(stage: selectedStage),
-                      ),
-                    );
+                    widget.onStartGame(selectedStage);
                   },
                 ),
                 const SizedBox(height: 80),

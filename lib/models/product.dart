@@ -1,7 +1,19 @@
 // lib/models/product.dart
 import 'package:flutter/material.dart';
 
-enum ProductType { gold, gem, mine, flag, button, background }
+enum ProductType {
+  gold,
+  gem,
+  mine,
+  flag,
+  button,
+  background,
+  character,
+  hair,
+  top,
+  bottom,
+  shoes,
+}
 
 class Product {
   final String? id;        // 스킨 아이템 구분용 ID (gold/gem엔 없음)
@@ -57,6 +69,16 @@ class Product {
         return ProductType.button;
       case 'background':
         return ProductType.background;
+      case 'character':
+        return ProductType.character;
+      case 'hair':
+        return ProductType.hair;
+      case 'top':
+        return ProductType.top;
+      case 'bottom':
+        return ProductType.bottom;
+      case 'shoes':
+        return ProductType.shoes;
       default:
         return ProductType.gold;
     }

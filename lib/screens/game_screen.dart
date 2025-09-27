@@ -13,7 +13,15 @@ import '../services/sound_service.dart';
 
 class GameScreen extends StatefulWidget {
   final Stage stage;
-  const GameScreen({super.key, required this.stage});
+  final VoidCallback onExit;     // ✅ 추가
+  final VoidCallback onRestart;  // ✅ 추가
+
+  const GameScreen({
+    super.key,
+    required this.stage,
+    required this.onExit,
+    required this.onRestart,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -23,15 +31,14 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    SoundService.playBgm("play.mp3");
+    context.read<AppDataProvider>().enterGameBgm();
   }
 
   @override
   void dispose() {
-    SoundService.stopBgm();
+    context.read<AppDataProvider>().exitGameBgm();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -57,7 +64,7 @@ class _GameScreenState extends State<GameScreen> {
                   },
                   onCancel: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).maybePop();
+                    widget.onExit(); // ✅ 스테이지 맵으로 복귀
                   },
                 ),
               ),
@@ -108,14 +115,18 @@ class _GameScreenState extends State<GameScreen> {
                       if (nextStage != widget.stage) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) => GameScreen(stage: nextStage),
+                            builder: (_) => GameScreen(
+                              stage: nextStage,
+                              onExit: widget.onExit,
+                              onRestart: widget.onRestart,
+                            ),
                           ),
                         );
                       }
                     },
                     onCancel: () {
-                      Navigator.of(context).pop();      // 다이얼로그 닫기
-                      Navigator.of(context).maybePop(); // 🔥 스택에 StageMapScreen이 남아 있으면 복귀
+                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                      widget.onExit();             // ✅ 스테이지 맵으로 복귀
                     },
                   ),
                 ),
@@ -143,11 +154,14 @@ class _GameScreenState extends State<GameScreen> {
                       : null,
                 ),
                 child: Column(
-                  children: const [
-                    AdBanner(),
-                    GameHeader(),
-                    Expanded(child: GameBoard()),
-                    GameCTAbar(),
+                  children: [
+                    const AdBanner(),
+                    const GameHeader(),
+                    const Expanded(child: GameBoard()),
+                    GameCTAbar(
+                      onExit: widget.onExit,
+                      onRestart: widget.onRestart,
+                    ),
                   ],
                 ),
               ),

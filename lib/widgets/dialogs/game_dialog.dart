@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class GameDialog extends StatelessWidget {
   final String title;
-  final String content;
+  final dynamic content; // ✅ String 또는 Widget 지원
   final String confirmText;
   final VoidCallback onConfirm;
   final String? cancelText;
@@ -22,6 +22,15 @@ class GameDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget contentWidget;
+    if (content is String) {
+      contentWidget = Text(content as String, textAlign: TextAlign.center);
+    } else if (content is Widget) {
+      contentWidget = content as Widget;
+    } else {
+      contentWidget = const SizedBox.shrink();
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: Colors.yellow[100],
@@ -31,9 +40,12 @@ class GameDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) Icon(icon, size: 48, color: Colors.orange),
-            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
-            Text(content, textAlign: TextAlign.center),
+            contentWidget,
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

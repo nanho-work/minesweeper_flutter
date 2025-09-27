@@ -13,6 +13,7 @@ import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/ad_service.dart';
 import 'services/sound_service.dart';
+import 'core/navigation_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +71,11 @@ class _MinesweeperAppState extends State<MinesweeperApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    SoundService.playBgm("main_sound.mp3");
+
+    final appData = context.read<AppDataProvider>();
+    if (appData.bgmEnabled) {
+      SoundService.playBgm("main_sound.mp3");
+    }
   }
 
   @override
@@ -81,17 +86,22 @@ class _MinesweeperAppState extends State<MinesweeperApp>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      SoundService.stopBgm();
-    } else if (state == AppLifecycleState.resumed) {
-      SoundService.playBgm("main_sound.mp3");
+    void didChangeAppLifecycleState(AppLifecycleState state) {
+      final appData = context.read<AppDataProvider>();
+
+      if (state == AppLifecycleState.paused) {
+        SoundService.stopBgm();
+      } else if (state == AppLifecycleState.resumed) {
+        if (appData.bgmEnabled) {
+          SoundService.playBgm(appData.currentBgm, force: true);
+        }
+      }
     }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );

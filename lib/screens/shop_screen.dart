@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../widgets/product_grid.dart';
-import '../widgets/ad_banner.dart';
 import '../providers/product_provider.dart';
 
 class ShopScreen extends StatefulWidget {
@@ -30,8 +29,6 @@ class _ShopScreenState extends State<ShopScreen> {
         children: [
           Column(
             children: [
-              const SizedBox(height: 16),
-              const SafeArea(child: AdBanner()),
 
               Expanded(
                 child: ListView(
@@ -42,6 +39,10 @@ class _ShopScreenState extends State<ShopScreen> {
                     _buildCategorySection("깃발", ProductType.flag),
                     _buildCategorySection("버튼", ProductType.button),
                     _buildCategorySection("배경", ProductType.background),
+                    _buildCategorySection("헤어", ProductType.hair),
+                    _buildCategorySection("상의", ProductType.top),
+                    _buildCategorySection("하의", ProductType.bottom),
+                    _buildCategorySection("신발", ProductType.shoes),
                   ],
                 ),
               ),

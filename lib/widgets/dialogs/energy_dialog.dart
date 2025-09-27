@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/app_data_provider.dart';
-import '../services/ad_service.dart';
-import 'dialogs/game_dialog.dart';
+import '../../providers/app_data_provider.dart';
+import '../../services/ad_service.dart';
+import 'game_dialog.dart';
 
 class EnergyDialog extends StatelessWidget {
   const EnergyDialog({super.key});
@@ -13,7 +13,7 @@ class EnergyDialog extends StatelessWidget {
 
     return GameDialog(
       title: "에너지 충전",
-      content: "보석 20개로 충전하거나, 광고를 시청하세요.",
+      content: "보석 20개로 충전하거나, 광고를 시청하세요.", // ✅ String 그대로
       icon: Icons.flash_on,
       confirmText: "보석 20개 사용",
       onConfirm: () async {

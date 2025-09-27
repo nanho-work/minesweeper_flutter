@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_data_provider.dart';
+import '../services/sound_service.dart';
 
 class AppDataProvider extends ChangeNotifier {
   static const int maxEnergy = 7;
-  static const int rechargeMinutes = 10;
+  static const int rechargeMinutes = 4;
 
   int gold = 0;
   int gems = 0;
@@ -12,6 +15,11 @@ class AppDataProvider extends ChangeNotifier {
 
   DateTime? lastEnergyUsed;
   Duration timeUntilNextEnergy = Duration.zero;
+
+  bool bgmEnabled = true;
+  bool effectEnabled = true;
+  String currentBgm = "main_sound.mp3"; // ✅ 현재 재생 중인 BGM
+  String? lastAttendanceDate;
 
   void _startEnergyTimer() {
     Future.doWhile(() async {
@@ -41,11 +49,42 @@ class AppDataProvider extends ChangeNotifier {
     });
   }
 
+  Future<void> toggleBgm(bool enabled) async {
+    bgmEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('bgmEnabled', enabled);
+    if (enabled) {
+      SoundService.playBgm("main_sound.mp3", force: true);
+    } else {
+      SoundService.stopBgm();
+    }
+    notifyListeners();
+  }
+
+  void enterGameBgm() {
+    setBgm("play.mp3", force: true);
+  }
+
+  void exitGameBgm() {
+    setBgm("main_sound.mp3", force: true);
+  }
+
+  Future<void> toggleEffect(bool enabled) async {
+    effectEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('effectEnabled', enabled);
+    notifyListeners();
+  }
+
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     gold = prefs.getInt('gold') ?? 0;
     gems = prefs.getInt('gems') ?? 0;
     energy = prefs.getInt('energy') ?? maxEnergy;
+    bgmEnabled = prefs.getBool('bgmEnabled') ?? true;
+    effectEnabled = prefs.getBool('effectEnabled') ?? true;
+    lastAttendanceDate = prefs.getString('last_attendance_date');
     final lastUsedString = prefs.getString('lastEnergyUsed');
     if (lastUsedString != null) {
       lastEnergyUsed = DateTime.tryParse(lastUsedString);
@@ -188,5 +227,62 @@ class AppDataProvider extends ChangeNotifier {
       await _unlockStage(nextId);
     }
   }
+  void setBgm(String file, {bool force = false}) {
+    currentBgm = file;
+    if (bgmEnabled) {
+      SoundService.playBgm(file, force: force);
+    }
+    notifyListeners();
+  }
 
+  Future<void> markAttendance() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final lastDate = prefs.getString('last_attendance_date');
+
+    // 같은 날이면 중복 방지
+    if (lastDate == today) return;
+
+    // 출석 배열 불러오기
+    List<String> raw = prefs.getStringList('attendance_days') ?? List.filled(7, "false");
+    List<bool> days = raw.map((e) => e == "true").toList();
+
+    // 다음 빈칸 찾기
+    final index = days.indexOf(false);
+    if (index != -1) {
+      days[index] = true;
+      await prefs.setStringList('attendance_days', days.map((e) => e.toString()).toList());
+      lastAttendanceDate = today;
+      await prefs.setString('last_attendance_date', today);
+
+      // 보상 지급 (골드 1500)
+      await addGold(100);
+
+      // 만약 모두 출석 완료면 → 보석 50 보상
+      if (days.length == 7 && days.every((d) => d)) {
+        await addGems(300);
+        // 배열 초기화
+        await prefs.setStringList('attendance_days', List.filled(7, "false"));
+        lastAttendanceDate = today;
+        await prefs.setString('last_attendance_date', today);
+      }
+
+      notifyListeners();
+    }
+  }
+  Future<List<bool>> getAttendance() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> raw = prefs.getStringList('attendance_days') ?? List.filled(7, "false");
+    List<bool> days = raw.map((e) => e == "true").toList();
+
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final lastDate = prefs.getString('last_attendance_date');
+
+    // 오늘 이미 출석했으면 → nextIndex 무효
+    if (lastDate == today) {
+      return days; 
+    }
+
+    return days;
+  }
 }
