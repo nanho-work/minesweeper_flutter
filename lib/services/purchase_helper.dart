@@ -5,6 +5,7 @@ import '../providers/app_data_provider.dart';
 import '../providers/inventory_provider.dart';
 import 'ad_service.dart';
 import 'ad_limit_service.dart'; // ✅ 광고 제한 서비스 추가
+import '../widgets/dialogs/game_dialog.dart';
 
 class PurchaseHelper {
   /// 광고 리워드 처리
@@ -44,7 +45,7 @@ class PurchaseHelper {
   }
 
   /// 일반 상품 구매 처리
-  static Future<void> purchaseProduct(
+  static Future<bool> purchaseProduct(
       BuildContext context, Product product) async {
     final currencyProvider = context.read<AppDataProvider>();
     final price = int.tryParse(product.price) ?? 0;
@@ -75,10 +76,39 @@ class PurchaseHelper {
       }
     }
 
-    final errorMsg = (currency == "gem") ? "보석이 부족합니다." : "골드가 부족합니다.";
+    return success;
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? "구매 완료!" : errorMsg)),
+  /// 구매 확인 및 처리
+  static Future<void> confirmAndPurchase(BuildContext context, Product product) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => GameDialog(
+        title: '구매 확인',
+        content: '${product.name}을(를) 구매하시겠습니까?',
+        confirmText: '구매',
+        onConfirm: () => Navigator.of(context).pop(true),
+        cancelText: '취소',
+        onCancel: () => Navigator.of(context).pop(false),
+      ),
     );
+
+    if (confirm == true) {
+      final success = await purchaseProduct(context, product);
+      final currency = product.currency ?? "gold";
+      final message = success
+          ? "구매 완료!"
+          : (currency == "gem" ? "보석이 부족합니다." : "골드가 부족합니다.");
+
+      await showDialog<void>(
+        context: context,
+        builder: (context) => GameDialog(
+          title: '알림',
+          content: message,
+          confirmText: '확인',
+          onConfirm: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
   }
 }

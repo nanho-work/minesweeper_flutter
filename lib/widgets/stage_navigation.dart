@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/game_stage.dart';
 import '../providers/app_data_provider.dart';
+import 'game_button.dart';
 
 /// StageNavigation 위젯은 게임 스테이지 선택 및 시작을 위한 UI를 구성합니다.
 /// 좌우 화살표 버튼으로 스테이지를 변경하고, 가운데에는 스테이지 이미지와 이름, 시작 버튼을 표시합니다.
@@ -30,30 +31,10 @@ class StageNavigation extends StatelessWidget {
         children: [
           // 왼쪽 화살표 버튼: 이전 스테이지로 이동
           IconButton(
-            icon: Stack(
-              children: [
-                Text(
-                  String.fromCharCode(Icons.arrow_left.codePoint),
-                  style: TextStyle(
-                    fontSize: 60,
-                    fontFamily: Icons.arrow_left.fontFamily,
-                    package: Icons.arrow_left.fontPackage,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 3
-                      ..color = Colors.black,
-                  ),
-                ),
-                Text(
-                  String.fromCharCode(Icons.arrow_left.codePoint),
-                  style: TextStyle(
-                    fontSize: 60,
-                    fontFamily: Icons.arrow_left.fontFamily,
-                    package: Icons.arrow_left.fontPackage,
-                    color: Colors.yellow,
-                  ),
-                ),
-              ],
+            icon: SizedBox(
+              width: 40,
+              height: 40,
+              child: Image.asset('assets/images/left.png'),
             ),
             onPressed: onPrev,
           ),
@@ -118,52 +99,52 @@ class StageNavigation extends StatelessWidget {
               const SizedBox(height: 8),
               // 시작 버튼: 에너지 소모 후 게임 시작, 에너지 부족 시 다이얼로그 표시
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: 180,
+                height: 50,
                 child: FutureBuilder<Map<String, dynamic>?>(
                   future: context.read<AppDataProvider>().loadStageResult(stage.id),
                   builder: (context, snapshot) {
                     final stored = snapshot.data;
                     final isLocked = stored != null && stored.containsKey('locked') ? stored['locked'] as bool : stage.locked;
-                    return GestureDetector(
-                      onTap: isLocked
-                          ? null
-                          : () async {
-                              final appData = context.read<AppDataProvider>();
-                              final ok = await appData.spendEnergy(1);
-                              if (!ok) {
-                                // 에너지 부족 시 경고 다이얼로그 표시
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text("에너지가 부족합니다"),
-                                    content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text("확인"),
-                                      ),
-                                    ],
+                    if (isLocked) {
+                      return GameButton(
+                        text: "스테이지 잠김",
+                        onPressed: () {},
+                        width: 180,
+                        height: 50,
+                        color: Colors.grey,
+                      );
+                    } else {
+                      return GameButton(
+                        text: "게임 시작",
+                        onPressed: () async {
+                          final appData = context.read<AppDataProvider>();
+                          final ok = await appData.spendEnergy(1);
+                          if (!ok) {
+                            // 에너지 부족 시 경고 다이얼로그 표시
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("에너지가 부족합니다"),
+                                content: const Text("광고 시청 또는 젬을 사용하여 에너지를 충전하세요."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("확인"),
                                   ),
-                                );
-                                return;
-                              }
-                              // 에너지 충분 시 게임 시작 콜백 호출
-                              onStartGame(stage);
-                            },
-                      child: isLocked
-                          ? Image.asset(
-                                "assets/images/unlock.png",
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: 50,
-                            )
-                          : Image.asset(
-                                "assets/images/start.png",
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: 50,
-                            ),
-                    );
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+                          // 에너지 충분 시 게임 시작 콜백 호출
+                          onStartGame(stage);
+                        },
+                        width: 180,
+                        height: 50,
+                        color: const Color(0xFFFF9800), // Orange color
+                      );
+                    }
                   },
                 ),
               ),
@@ -171,30 +152,10 @@ class StageNavigation extends StatelessWidget {
           ),
           // 오른쪽 화살표 버튼: 다음 스테이지로 이동
           IconButton(
-            icon: Stack(
-              children: [
-                Text(
-                  String.fromCharCode(Icons.arrow_right.codePoint),
-                  style: TextStyle(
-                    fontSize: 60,
-                    fontFamily: Icons.arrow_right.fontFamily,
-                    package: Icons.arrow_right.fontPackage,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 3
-                      ..color = Colors.black,
-                  ),
-                ),
-                Text(
-                  String.fromCharCode(Icons.arrow_right.codePoint),
-                  style: TextStyle(
-                    fontSize: 60,
-                    fontFamily: Icons.arrow_right.fontFamily,
-                    package: Icons.arrow_right.fontPackage,
-                    color: Colors.yellow,
-                  ),
-                ),
-              ],
+            icon: SizedBox(
+              width: 40,
+              height: 40,
+              child: Image.asset('assets/images/right.png'),
             ),
             onPressed: onNext,
           ),

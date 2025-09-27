@@ -26,8 +26,8 @@ class SidebarWidget extends StatelessWidget {
             IconButton(
               icon: Image.asset(
                 'assets/images/day_check.png',
-                width: 32,
-                height: 32,
+                width: 60,
+                height: 60,
               ),
               onPressed: () {
                 showDialog(

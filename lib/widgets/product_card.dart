@@ -59,7 +59,7 @@ class ProductCard extends StatelessWidget {
                 return GameButton(
                   text: "보유중",
                   onPressed: () {},
-                  color: Colors.grey.shade300,
+                  color: Colors.orange.shade300,
                   textColor: Colors.black54,
                   width: itemWidth,
                   height: 30,
@@ -88,7 +88,7 @@ class ProductCard extends StatelessWidget {
               return GameButton(
                 text: "${product.price} ${(product.currency ?? "gold") == "gem" ? "잼" : "골드"}",
                 onPressed: () async {
-                  await PurchaseHelper.purchaseProduct(context, product);
+                  await PurchaseHelper.confirmAndPurchase(context, product);
                 },
                 color: Colors.white,
                 textColor: Colors.grey[800],

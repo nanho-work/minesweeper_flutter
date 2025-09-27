@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../game_button.dart';
 
 class GameDialog extends StatelessWidget {
   final String title;
@@ -50,15 +51,24 @@ class GameDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (cancelText != null)
-                  TextButton(
+                if (cancelText != null) ...[
+                  GameButton(
+                    text: cancelText!,
                     onPressed: onCancel ?? () => Navigator.pop(context),
-                    child: Text(cancelText!, style: const TextStyle(color: Colors.grey)),
+                    width: 80,
+                    height: 36,
+                    color: Colors.grey.shade400,
+                    textColor: Colors.black,
                   ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  const SizedBox(width: 12),
+                ],
+                GameButton(
+                  text: confirmText,
                   onPressed: onConfirm,
-                  child: Text(confirmText, style: const TextStyle(color: Colors.white)),
+                  width: 80,
+                  height: 36,
+                  color: Colors.orange,
+                  textColor: Colors.white,
                 ),
               ],
             )
