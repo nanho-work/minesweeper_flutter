@@ -53,12 +53,12 @@ class CharacterWidget extends StatelessWidget {
         children: [
           if (getImage("character") != null)
             Image.asset(getImage("character")!, fit: BoxFit.contain),
-          if (getImage("hair") != null)
-            Image.asset(getImage("hair")!, fit: BoxFit.contain),
-          if (getImage("top") != null)
-            Image.asset(getImage("top")!, fit: BoxFit.contain),
           if (getImage("bottom") != null)
             Image.asset(getImage("bottom")!, fit: BoxFit.contain),
+          if (getImage("top") != null)
+            Image.asset(getImage("top")!, fit: BoxFit.contain),
+          if (getImage("hair") != null)
+            Image.asset(getImage("hair")!, fit: BoxFit.contain),
           if (getImage("shoes") != null)
             Image.asset(getImage("shoes")!, fit: BoxFit.contain),
         ],
