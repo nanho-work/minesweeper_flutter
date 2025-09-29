@@ -17,13 +17,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/skins/Character_room_bg.png',
+              fit: BoxFit.fill,
+            ),
+          ),
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CharacterWidget(size: 200),
+                const SizedBox(height: 300),
+                CharacterWidget(size: 180),
                 const SizedBox(height: 8),
                 const CharacterItemsWidget(), // ✅ 착용 아이템 미리보기
               ],

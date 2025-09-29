@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/game_stage.dart';
+import '../models/stage_result.dart';
 import '../providers/app_data_provider.dart';
 import 'game_button.dart';
+
 
 /// StageNavigation 위젯은 게임 스테이지 선택 및 시작을 위한 UI를 구성합니다.
 /// 좌우 화살표 버튼으로 스테이지를 변경하고, 가운데에는 스테이지 이미지와 이름, 시작 버튼을 표시합니다.
@@ -94,18 +96,53 @@ class StageNavigation extends StatelessWidget {
                 ],
               ),
               const SizedBox(height:8),
-              // 스테이지 이미지 표시
-              Image.asset(stage.image, width: 200, height: 200),
+              // 스테이지 이미지 + 클리어 뱃지
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(stage.image, width: 200, height: 200),
+                  FutureBuilder<StageResult?>(
+                    future: context.read<AppDataProvider>().loadStageResult(stage.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        final result = snapshot.data!;
+                        if (result.cleared) {
+                          return Positioned(
+                            right: -8,
+                            top: -8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "클리어",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               // 시작 버튼: 에너지 소모 후 게임 시작, 에너지 부족 시 다이얼로그 표시
               SizedBox(
                 width: 180,
                 height: 50,
-                child: FutureBuilder<Map<String, dynamic>?>(
+                child: FutureBuilder<StageResult?>(
                   future: context.read<AppDataProvider>().loadStageResult(stage.id),
                   builder: (context, snapshot) {
-                    final stored = snapshot.data;
-                    final isLocked = stored != null && stored.containsKey('locked') ? stored['locked'] as bool : stage.locked;
+                    final result = snapshot.data;
+                    final isLocked = result?.locked ?? stage.locked;
                     if (isLocked) {
                       return GameButton(
                         text: "스테이지 잠김",

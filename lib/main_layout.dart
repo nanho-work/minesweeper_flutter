@@ -1,6 +1,7 @@
-import 'package:provider/provider.dart'; 
-
+// lib/main_layout.dart
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+
 import 'screens/home_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/person_screen.dart';
@@ -10,32 +11,32 @@ import 'screens/help_screen.dart';
 import 'widgets/app_header.dart';
 import 'widgets/app_footer.dart';
 import 'models/game_stage.dart';
-import '../providers/app_data_provider.dart';
+import 'providers/app_data_provider.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
-  const MainLayout({super.key, this.initialIndex = 2});
+  const MainLayout({super.key, this.initialIndex = 2}); // 기본값 HomeScreen
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  late int _selectedIndex = widget.initialIndex; // 기본 Home
-
+  late int _selectedIndex = widget.initialIndex;
   Stage? _activeGameStage;
 
   void _startGame(Stage stage) {
     setState(() {
       _activeGameStage = stage;
     });
+    context.read<AppDataProvider>().enterGameBgm(); // 게임 BGM 시작
   }
 
   void _exitGame() {
     setState(() {
       _activeGameStage = null;
     });
-    context.read<AppDataProvider>().exitGameBgm(); // ✅ 통일된 API 사용
+    context.read<AppDataProvider>().exitGameBgm(); // 메인 BGM 복귀
   }
 
   late final List<Widget> _screens;
@@ -48,7 +49,7 @@ class _MainLayoutState extends State<MainLayout> {
       const PersonScreen(),
       const HomeScreen(),
       StageMapScreen(onStartGame: _startGame),
-      const HelpScreen(), // ✅ SettingsScreen 대신 HelpScreen 배치
+      const HelpScreen(),
     ];
   }
 
@@ -66,7 +67,7 @@ class _MainLayoutState extends State<MainLayout> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/home_bg2.png',
+              'assets/images/app_bg.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -77,12 +78,13 @@ class _MainLayoutState extends State<MainLayout> {
               double headerHeight = maxHeight * 0.13;
 
               if (maxWidth < 600) {
+                // 모바일
                 return SafeArea(
                   child: Column(
                     children: [
                       SizedBox(
                         height: headerHeight,
-                        child: const AppHeader(), // ✅ 헤더에 설정 버튼 추가됨
+                        child: const AppHeader(),
                       ),
                       Expanded(
                         child: _activeGameStage != null
@@ -94,12 +96,9 @@ class _MainLayoutState extends State<MainLayout> {
                             : _screens[_selectedIndex],
                       ),
                       if (_activeGameStage == null)
-                        SizedBox(
-                          height: 120,
-                          child: AppFooter(
-                            currentIndex: _selectedIndex,
-                            onTap: _onFooterTap,
-                          ),
+                        AppFooter(
+                          currentIndex: _selectedIndex,
+                          onTap: _onFooterTap,
                         ),
                     ],
                   ),
@@ -127,12 +126,9 @@ class _MainLayoutState extends State<MainLayout> {
                               : _screens[_selectedIndex],
                         ),
                         if (_activeGameStage == null)
-                          SizedBox(
-                            height: 120,
-                            child: AppFooter(
-                              currentIndex: _selectedIndex,
-                              onTap: _onFooterTap,
-                            ),
+                          AppFooter(
+                            currentIndex: _selectedIndex,
+                            onTap: _onFooterTap,
                           ),
                       ],
                     ),

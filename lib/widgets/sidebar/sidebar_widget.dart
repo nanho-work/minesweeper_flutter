@@ -40,16 +40,6 @@ class SidebarWidget extends StatelessWidget {
                 );
               },
             ),
-
-            const SizedBox(height: 12),
-
-            // 다른 버튼들 확장 가능
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.black87),
-              onPressed: () {
-                // TODO: 설정 다이얼로그 연결
-              },
-            ),
           ],
         ),
       ),

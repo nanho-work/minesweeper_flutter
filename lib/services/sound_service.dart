@@ -17,7 +17,7 @@ class SoundService {
       stayAwake: false,
       contentType: AndroidContentType.music,
       usageType: AndroidUsageType.media,
-      audioFocus: AndroidAudioFocus.none,
+      audioFocus: AndroidAudioFocus.gain,
     ),
   );
 

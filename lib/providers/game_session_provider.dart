@@ -14,7 +14,6 @@ class GameSessionProvider extends ChangeNotifier {
   int elapsed = 0;
   int mistakes = 0;
   int maxHearts = 3;
-  int attempts = 0;
   int _starsEarned = 0;
   Timer? _timer;
 
@@ -26,7 +25,6 @@ class GameSessionProvider extends ChangeNotifier {
   VoidCallback? onGameClear;
 
   GameSessionProvider(this.stage) {
-    attempts++;
     engine = GameEngine();
     engine.init(stage);
     _startTimer();
@@ -52,7 +50,6 @@ class GameSessionProvider extends ChangeNotifier {
     elapsed = 0;
     mistakes = 0;
     engine.init(stage);
-    attempts++;
     _startTimer();
     notifyListeners();
   }
@@ -135,7 +132,7 @@ class GameSessionProvider extends ChangeNotifier {
     final appData = Provider.of<AppDataProvider>(
       context, listen: false);
     appData.saveStageResult(
-      stage.id,
+      stageId: stage.id,
       conditions: conditions,
       elapsed: elapsed,
       mistakes: mistakes,

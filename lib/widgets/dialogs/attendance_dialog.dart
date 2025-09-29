@@ -34,111 +34,107 @@ class AttendanceDialog extends StatelessWidget {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    "오늘도 접속해주셔서 감사합니다!\n보상을 받아가세요 🎁",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: attendance.length + 1,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 6,
-                      crossAxisSpacing: 6,
+                  // 텍스트 컨테이너
+                  Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      image: const DecorationImage(
+                        image: AssetImage("assets/images/dialog/attendance_header.png"),
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      if (index == attendance.length) {
-                        final allClaimed = attendance.every((d) => d);
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: allClaimed ? Colors.green[100] : Colors.grey[300],
-                            border: Border.all(
-                              color: allClaimed ? Colors.green : Colors.grey,
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "출석성공",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: allClaimed ? Colors.green : Colors.grey,
+                  ),
+                  // GridView 컨테이너
+                  Container(
+                    height: 250,
+                    decoration: BoxDecoration(
+                      image: const DecorationImage(
+                        image: AssetImage("assets/images/dialog/attendance_body.png"),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(14),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: attendance.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 6,
+                        crossAxisSpacing: 6,
+                      ),
+                      itemBuilder: (context, index) {
+                        final isClaimed = attendance[index];
+                        final day = index + 1;
+                        final enabled = index == nextIndex && !isClaimed && lastDate != today;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            if (enabled) {
+                              await context.read<AppDataProvider>().markAttendance();
+                              onClaim(day);
+                              String rewardText;
+                              if (day == 1 || day == 3 || day == 5) {
+                                rewardText = "골드 100 지급";
+                              } else if (day == 2 || day == 4 || day == 6) {
+                                rewardText = "보석 20 지급";
+                              } else if (day == 7) {
+                                rewardText = "골드 200 + 보석 40 지급";
+                              } else {
+                                rewardText = "보상 없음";
+                              }
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                      return AlertDialog(
+                                      title: const Text("출석 보상 🎁"),
+                                      content: Text("$day일차 출석 완료!\n보상: $rewardText"),
+                                      actions: [
+                                        GameButton(
+                                          text: "확인",
+                                          onPressed: () => Navigator.of(context).pop(),
+                                          width: 80,
+                                          height: 36,
+                                        ),
+                                      ],
+                                      );
+                                  },
+                              );
+                            }
+                          },
+                          child: Opacity(
+                            opacity: enabled ? 1.0 : 0.4,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isClaimed ? Colors.grey[300] : Colors.orange[100],
+                                border: Border.all(
+                                  color: isClaimed ? Colors.grey : Colors.orange,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Image.asset(
+                                day == 7
+                                    ? "assets/images/dialog/attendance_gold_gem.png"
+                                    : (day == 1 || day == 3 || day == 5)
+                                        ? "assets/images/dialog/attendance_gold.png"
+                                        : "assets/images/dialog/attendance_gem.png",
+                                width: 48,
+                                height: 48,
+                                color: isClaimed ? Colors.grey : null,
+                                colorBlendMode: isClaimed ? BlendMode.saturation : null,
                               ),
                             ),
                           ),
                         );
-                      }
-
-                      final isClaimed = attendance[index];
-                      final day = index + 1;
-                      final enabled = index == nextIndex && !isClaimed && lastDate != today;
-
-                      return GestureDetector(
-                        onTap: () async {
-                          if (enabled) {
-                            await context.read<AppDataProvider>().markAttendance();
-                            onClaim(day);
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                    return AlertDialog(
-                                    title: const Text("출석 보상 🎁"),
-                                    content: Text("$day일차 출석 완료!\n보상: 골드 100 지급"),
-                                    actions: [
-                                      GameButton(
-                                        text: "확인",
-                                        onPressed: () => Navigator.of(context).pop(),
-                                        width: 80,
-                                        height: 36,
-                                      ),
-                                    ],
-                                    );
-                                },
-                            );
-                          }
-                        },
-                        child: Opacity(
-                          opacity: enabled ? 1.0 : 0.4,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isClaimed ? Colors.grey[300] : Colors.orange[100],
-                              border: Border.all(
-                                color: isClaimed ? Colors.grey : Colors.orange,
-                                width: 2,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.card_giftcard,
-                                  color: isClaimed ? Colors.grey : Colors.orange,
-                                  size: 20,
-                                ),
-                                Text(
-                                  "$day일",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: isClaimed ? Colors.grey : Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ],
               ),
               confirmText: "닫기",
               onConfirm: () => Navigator.of(context).pop(),
+              backgroundColor: Colors.transparent, // ✅ 투명 지정
             );
           },
         );

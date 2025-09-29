@@ -22,6 +22,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -33,6 +34,15 @@ flutter:
     - assets/images/skins/
     - assets/images/backgrounds/
     - assets/images/avatar/
+    - assets/images/dialog/
+    - assets/images/header/
     - assets/sounds/
     - assets/icons/
     - assets/data/
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"   # (옵션) 안드로이드용 배경
+  adaptive_icon_foreground: "assets/icon/app_icon.png"

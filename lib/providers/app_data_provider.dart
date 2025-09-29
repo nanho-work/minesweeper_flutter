@@ -1,58 +1,314 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
-import '../providers/app_data_provider.dart';
+import '../models/stage_result.dart';
 import '../services/sound_service.dart';
+import '../models/game_stage.dart';
 
-class AppDataProvider extends ChangeNotifier {
+/// ✅ 앱 데이터 기본값 모음 (추후 변경/확장 용이)
+class AppDefaults {
   static const int maxEnergy = 7;
   static const int rechargeMinutes = 4;
+  static const int maxStages = 30;
 
-  int gold = 0;
-  int gems = 0;
-  int energy = 0;
+  static const int defaultGold = 0;
+  static const int defaultGems = 0;
+  static const int defaultEnergy = maxEnergy;
+}
 
-  DateTime? lastEnergyUsed;
-  Duration timeUntilNextEnergy = Duration.zero;
+class AppDataProvider extends ChangeNotifier {
+  late final SharedPreferences _prefs;
 
-  bool bgmEnabled = true;
-  bool effectEnabled = true;
-  String currentBgm = "main_sound.mp3"; // ✅ 현재 재생 중인 BGM
-  String? lastAttendanceDate;
+  int _gold = AppDefaults.defaultGold;
+  int get gold => _gold;
+
+  int _gems = AppDefaults.defaultGems;
+  int get gems => _gems;
+
+  int _energy = AppDefaults.defaultEnergy;
+  int get energy => _energy;
+
+  DateTime? _lastEnergyUsed;
+  DateTime? get lastEnergyUsed => _lastEnergyUsed;
+
+  Duration _timeUntilNextEnergy = Duration.zero;
+  Duration get timeUntilNextEnergy => _timeUntilNextEnergy;
+
+  bool _bgmEnabled = true;
+  bool get bgmEnabled => _bgmEnabled;
+
+  bool _effectEnabled = true;
+  bool get effectEnabled => _effectEnabled;
+
+  String _currentBgm = "main_sound.mp3"; // ✅ 현재 재생 중인 BGM
+  String get currentBgm => _currentBgm;
+
+  String? _lastAttendanceDate;
+  String? get lastAttendanceDate => _lastAttendanceDate;
+
+  final Map<int, StageResult> _stageResults = {};
+  Map<int, StageResult> get stageResults => Map.unmodifiable(_stageResults);
+
+  Timer? _energyTimer;
+
+  bool _disposed = false;
+
+  // -------------------- 스테이지 관련 --------------------
+
+  /// ✅ 전체 스테이지 결과 한번에 로드 (추후 성능 개선)
+  Future<void> loadAllStageResults() async {
+    for (int i = 1; i <= AppDefaults.maxStages; i++) {
+      final jsonStr = _prefs.getString("stage_$i");
+      if (jsonStr != null) {
+        try {
+          final data = jsonDecode(jsonStr);
+          _stageResults[i] = StageResult.fromJson(i, data);
+        } catch (_) {
+          _stageResults[i] = StageResult.initial(i);
+        }
+      } else {
+        _stageResults[i] = StageResult.initial(i);
+      }
+    }
+  }
+
+  /// ✅ 스테이지 결과 로드
+  Future<StageResult?> loadStageResult(int stageId, {bool forceReload = false}) async {
+    if (!forceReload && _stageResults.containsKey(stageId)) {
+      return _stageResults[stageId];
+    }
+    final jsonStr = _prefs.getString("stage_$stageId");
+    if (jsonStr == null) return null;
+    try {
+      final data = jsonDecode(jsonStr);
+      final result = StageResult.fromJson(stageId, data);
+      _stageResults[stageId] = result;
+      return result;
+    } catch (_) {
+      return StageResult.initial(stageId);
+    }
+  }
+
+  /// ✅ 스테이지 결과 저장 (자동 병합)
+  Future<void> saveStageResult({
+    required int stageId,
+    required List<bool> conditions,
+    required int elapsed,
+    required int mistakes,
+  }) async {
+    final oldResult = await loadStageResult(stageId);
+
+    // 조건 병합
+    List<bool> mergedConditions = List.from(conditions);
+    if (oldResult != null) {
+      for (int i = 0; i < mergedConditions.length; i++) {
+        if (i < oldResult.conditions.length && oldResult.conditions[i]) {
+          mergedConditions[i] = true;
+        }
+      }
+    }
+
+    // 시도 횟수 / 최고 기록 업데이트
+    int attempts = (oldResult?.attempts ?? 0) + 1;
+    int bestElapsed = (oldResult == null || oldResult.bestElapsed == 0 || elapsed < oldResult.bestElapsed)
+        ? elapsed
+        : oldResult.bestElapsed;
+    int bestMistakes = (oldResult == null || oldResult.bestMistakes == 0 || mistakes < oldResult.bestMistakes)
+        ? mistakes
+        : oldResult.bestMistakes;
+
+    final newResult = StageResult(
+      stageId: stageId,
+      conditions: mergedConditions,
+      stars: mergedConditions.where((c) => c).length,
+      cleared: true,
+      locked: false,
+      elapsed: elapsed,
+      mistakes: mistakes,
+      playedAt: DateTime.now(),
+      rewardsClaimed: oldResult?.rewardsClaimed ?? [false, false, false],
+      attempts: attempts,
+      bestElapsed: bestElapsed,
+      bestMistakes: bestMistakes,
+    );
+
+    await _saveStageResult(newResult);
+
+    // 다음 스테이지 자동 언락
+    final nextId = stageId + 1;
+    if (nextId <= AppDefaults.maxStages) {
+      await _unlockStage(nextId);
+    }
+  }
+
+  Future<void> _saveStageResult(StageResult result) async {
+    await _prefs.setString("stage_${result.stageId}", jsonEncode(result.toJson()));
+    _stageResults[result.stageId] = result;
+    notifyListeners();
+  }
+
+  Future<void> _unlockStage(int stageId) async {
+    StageResult updated = (await loadStageResult(stageId)) ?? StageResult.initial(stageId);
+    updated = updated.copyWith(locked: false);
+    await _saveStageResult(updated);
+  }
+
+  /// 마지막으로 클리어한 스테이지 ID
+  Future<int> getLastClearedStage() async {
+    int lastCleared = 0;
+    if (_stageResults.isEmpty) {
+      await loadAllStageResults();
+    }
+    for (var entry in _stageResults.entries) {
+      if (entry.value.cleared && entry.key > lastCleared) {
+        lastCleared = entry.key;
+      }
+    }
+    return lastCleared;
+  }
+
+  /// 도전해야 할 스테이지 index
+  Future<int> getNextStageToPlayIndex([List<Stage>? stages]) async {
+    stages ??= sampleStages;
+    final lastCleared = await getLastClearedStage();
+    final nextStageId = lastCleared + 1;
+    for (int i = 0; i < stages.length; i++) {
+      if (stages[i].id == nextStageId) return i;
+    }
+    if (nextStageId > AppDefaults.maxStages) return stages.length - 1;
+    return 0;
+  }
+
+  // -------------------- 보상 관련 --------------------
+
+  Future<bool> claimStarReward(int stageId, int starIndex) async {
+    final stageResult = await loadStageResult(stageId);
+    if (stageResult == null) return false;
+    if (stageResult.rewardsClaimed.length <= starIndex) return false;
+    if (stageResult.rewardsClaimed[starIndex]) return false;
+
+    await _giveReward(starIndex);
+
+    List<bool> updatedRewards = List.from(stageResult.rewardsClaimed);
+    updatedRewards[starIndex] = true;
+
+    final updatedResult = stageResult.copyWith(rewardsClaimed: updatedRewards);
+    await _saveStageResult(updatedResult);
+    return true;
+  }
+
+  /// ✅ 보상 지급 로직 단일화
+  Future<void> _giveReward(int starIndex) async {
+    switch (starIndex) {
+      case 0:
+        await addGold(100);
+        break;
+      case 1:
+        await addEnergy(1);
+        break;
+      case 2:
+        await addGems(20);
+        break;
+    }
+  }
+
+  // -------------------- 에너지 / 재화 --------------------
 
   void _startEnergyTimer() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (energy < maxEnergy && lastEnergyUsed != null) {
-        final elapsed = DateTime.now().difference(lastEnergyUsed!);
-        final gained = elapsed.inMinutes ~/ rechargeMinutes;
-        if (gained > 0) {
-          final add = (energy + gained > maxEnergy) ? maxEnergy - energy : gained;
-          if (add > 0) {
-            energy += add;
-            // 누적 충전을 위해 경과 시간만큼 보정
-            lastEnergyUsed = lastEnergyUsed!.add(Duration(minutes: gained * rechargeMinutes));
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setInt('energy', energy);
-            await prefs.setString('lastEnergyUsed', lastEnergyUsed!.toIso8601String());
-            notifyListeners();
-          }
-        }
-        final remainder = rechargeMinutes * 60 - (elapsed.inSeconds % (rechargeMinutes * 60));
-        timeUntilNextEnergy = Duration(seconds: remainder);
-      } else {
-        timeUntilNextEnergy = Duration.zero;
-      }
-      notifyListeners();
-      return true;
+    _energyTimer?.cancel();
+    _energyTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_disposed) return;
+      _updateEnergyState();
     });
   }
 
+  void _updateEnergyState() {
+    bool changed = false;
+    if (_energy < AppDefaults.maxEnergy && _lastEnergyUsed != null) {
+      final elapsed = DateTime.now().difference(_lastEnergyUsed!);
+      final gained = elapsed.inMinutes ~/ AppDefaults.rechargeMinutes;
+      if (gained > 0) {
+        final add = (_energy + gained > AppDefaults.maxEnergy) ? AppDefaults.maxEnergy - _energy : gained;
+        if (add > 0) {
+          _energy += add;
+          _lastEnergyUsed = _lastEnergyUsed!.add(Duration(minutes: gained * AppDefaults.rechargeMinutes));
+          _prefs.setInt('energy', _energy);
+          _prefs.setString('lastEnergyUsed', _lastEnergyUsed!.toIso8601String());
+          changed = true;
+        }
+      }
+      final remainder = AppDefaults.rechargeMinutes * 60 - (elapsed.inSeconds % (AppDefaults.rechargeMinutes * 60));
+      if (_timeUntilNextEnergy.inSeconds != remainder) {
+        _timeUntilNextEnergy = Duration(seconds: remainder);
+        changed = true;
+      }
+    } else {
+      if (_timeUntilNextEnergy != Duration.zero) {
+        _timeUntilNextEnergy = Duration.zero;
+        changed = true;
+      }
+    }
+    if (changed) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> addGold(int amount) async {
+    _gold += amount;
+    await _prefs.setInt('gold', _gold);
+    notifyListeners();
+  }
+
+  Future<void> addGems(int amount) async {
+    _gems += amount;
+    await _prefs.setInt('gems', _gems);
+    notifyListeners();
+  }
+
+  Future<void> addEnergy(int amount) async {
+    _energy = (_energy + amount > AppDefaults.maxEnergy) ? AppDefaults.maxEnergy : _energy + amount;
+    await _prefs.setInt('energy', _energy);
+    notifyListeners();
+  }
+
+  Future<bool> spendEnergy(int amount) async {
+    if (_energy >= amount) {
+      _energy -= amount;
+      _lastEnergyUsed = DateTime.now();
+      await _prefs.setInt('energy', _energy);
+      await _prefs.setString('lastEnergyUsed', _lastEnergyUsed!.toIso8601String());
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> spendGems(int amount) async {
+    if (_gems >= amount) {
+      _gems -= amount;
+      await _prefs.setInt('gems', _gems);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> spendGold(int amount) async {
+    if (_gold >= amount) {
+      _gold -= amount;
+      await _prefs.setInt('gold', _gold);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  // -------------------- 사운드 --------------------
+
   Future<void> toggleBgm(bool enabled) async {
-    bgmEnabled = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('bgmEnabled', enabled);
+    _bgmEnabled = enabled;
+    await _prefs.setBool('bgmEnabled', enabled);
     if (enabled) {
       SoundService.playBgm("main_sound.mp3", force: true);
     } else {
@@ -61,228 +317,82 @@ class AppDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void enterGameBgm() {
-    setBgm("play.mp3", force: true);
-  }
+  void enterGameBgm() => setBgm("play.mp3", force: true);
+  void exitGameBgm() => setBgm("main_sound.mp3", force: true);
 
-  void exitGameBgm() {
-    setBgm("main_sound.mp3", force: true);
-  }
-
-  Future<void> toggleEffect(bool enabled) async {
-    effectEnabled = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('effectEnabled', enabled);
-    notifyListeners();
-  }
-
-
-  Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    gold = prefs.getInt('gold') ?? 0;
-    gems = prefs.getInt('gems') ?? 0;
-    energy = prefs.getInt('energy') ?? maxEnergy;
-    bgmEnabled = prefs.getBool('bgmEnabled') ?? true;
-    effectEnabled = prefs.getBool('effectEnabled') ?? true;
-    lastAttendanceDate = prefs.getString('last_attendance_date');
-    final lastUsedString = prefs.getString('lastEnergyUsed');
-    if (lastUsedString != null) {
-      lastEnergyUsed = DateTime.tryParse(lastUsedString);
-    } else {
-      lastEnergyUsed = DateTime.now();
-    }
-    _startEnergyTimer();
-    notifyListeners();
-  }
-
-  Future<void> addGold(int amount) async {
-    gold += amount;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('gold', gold);
-    notifyListeners();
-  }
-
-  Future<void> addGems(int amount) async {
-    gems += amount;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('gems', gems);
-    notifyListeners();
-  }
-
-  Future<void> addEnergy(int amount) async {
-    energy = (energy + amount > maxEnergy) ? maxEnergy : energy + amount;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('energy', energy);
-    notifyListeners();
-  }
-
-  Future<bool> spendEnergy(int amount) async {
-    if (energy >= amount) {
-      energy -= amount;
-      lastEnergyUsed = DateTime.now();
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('energy', energy);
-      await prefs.setString('lastEnergyUsed', lastEnergyUsed!.toIso8601String());
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> spendGems(int amount) async {
-    if (gems >= amount) {
-      gems -= amount;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('gems', gems);
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> spendGold(int amount) async {
-    if (gold >= amount) {
-      gold -= amount;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('gold', gold);
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  /// ✅ 스테이지 클리어 기록 불러오기
-  Future<Map<String, dynamic>?> loadStageResult(int stageId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString("stage_$stageId");
-    if (jsonStr == null) return null;
-    final data = jsonDecode(jsonStr);
-    if (data is Map<String, dynamic> && data['cleared'] == true) {
-      data['locked'] = false;
-    }
-    return data;
-  }
-
-  Future<void> _unlockStage(int stageId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString("stage_$stageId");
-    Map<String, dynamic> data;
-    if (jsonStr != null) {
-      data = jsonDecode(jsonStr);
-      data["locked"] = false;
-    } else {
-      data = {
-        "conditions": [false, false, false],
-        "stars": 0,
-        "cleared": false,
-        "locked": false,
-      };
-    }
-    await prefs.setString("stage_$stageId", jsonEncode(data));
-  }
-
-  /// ✅ 스테이지 클리어 기록 저장 (조건 병합)
-  Future<void> saveStageResult(
-    int stageId, {
-    required List<bool> conditions,
-    required int elapsed,
-    required int mistakes,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // 기존 기록 병합
-    final oldData = await loadStageResult(stageId);
-    List<bool> mergedConditions = List.from(conditions);
-
-    int totalElapsed = elapsed;
-    int totalMistakes = mistakes;
-
-    if (oldData != null && oldData['conditions'] != null) {
-      final prev = (oldData['conditions'] as List).map((e) => e == true).toList();
-      for (int i = 0; i < mergedConditions.length; i++) {
-        mergedConditions[i] = mergedConditions[i] || prev[i];
-      }
-
-      // ✅ 누적 합산
-      totalElapsed += (oldData['elapsed'] ?? 0) as int;
-      totalMistakes += (oldData['mistakes'] ?? 0) as int;
-    }
-
-    // 새 데이터
-    final data = {
-      "conditions": mergedConditions,
-      "stars": mergedConditions.where((c) => c).length,
-      "cleared": true, // ✅ 클리어 여부 기록
-      "locked": false, // ✅ 클리어한 스테이지는 항상 오픈 상태 유지
-      "elapsed": totalElapsed,   // ✅ 추가
-      "mistakes": totalMistakes, // ✅ 추가
-      "playedAt": DateTime.now().toIso8601String(),
-    };
-
-    await prefs.setString("stage_$stageId", jsonEncode(data));
-
-    // ✅ 다음 스테이지 자동 언락
-    final nextId = stageId + 1;
-    if (nextId <= 30) {
-      await _unlockStage(nextId);
-    }
-  }
   void setBgm(String file, {bool force = false}) {
-    currentBgm = file;
-    if (bgmEnabled) {
+    _currentBgm = file;
+    if (_bgmEnabled) {
       SoundService.playBgm(file, force: force);
     }
     notifyListeners();
   }
 
-  Future<void> markAttendance() async {
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final lastDate = prefs.getString('last_attendance_date');
+  Future<void> toggleEffect(bool enabled) async {
+    _effectEnabled = enabled;
+    await _prefs.setBool('effectEnabled', enabled);
+    notifyListeners();
+  }
 
-    // 같은 날이면 중복 방지
+  // -------------------- 출석 --------------------
+
+  Future<void> markAttendance() async {
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final lastDate = _prefs.getString('last_attendance_date');
+
     if (lastDate == today) return;
 
-    // 출석 배열 불러오기
-    List<String> raw = prefs.getStringList('attendance_days') ?? List.filled(7, "false");
+    List<String> raw = _prefs.getStringList('attendance_days') ?? List.filled(7, "false");
     List<bool> days = raw.map((e) => e == "true").toList();
 
-    // 다음 빈칸 찾기
     final index = days.indexOf(false);
     if (index != -1) {
       days[index] = true;
-      await prefs.setStringList('attendance_days', days.map((e) => e.toString()).toList());
-      lastAttendanceDate = today;
-      await prefs.setString('last_attendance_date', today);
+      await _prefs.setStringList('attendance_days', days.map((e) => e.toString()).toList());
+      _lastAttendanceDate = today;
+      await _prefs.setString('last_attendance_date', today);
 
-      // 보상 지급 (골드 1500)
-      await addGold(100);
-
-      // 만약 모두 출석 완료면 → 보석 50 보상
-      if (days.length == 7 && days.every((d) => d)) {
-        await addGems(300);
-        // 배열 초기화
-        await prefs.setStringList('attendance_days', List.filled(7, "false"));
-        lastAttendanceDate = today;
-        await prefs.setString('last_attendance_date', today);
+      final dayNumber = index + 1;
+      if (dayNumber == 1 || dayNumber == 3 || dayNumber == 5) {
+        await addGold(100);
+      } else if (dayNumber == 2 || dayNumber == 4 || dayNumber == 6) {
+        await addGems(20);
+      } else if (dayNumber == 7) {
+        await addGold(200);
+        await addGems(40);
+        days = List.filled(7, false);
+        await _prefs.setStringList('attendance_days', days.map((e) => e.toString()).toList());
       }
-
       notifyListeners();
     }
   }
+
   Future<List<bool>> getAttendance() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> raw = prefs.getStringList('attendance_days') ?? List.filled(7, "false");
-    List<bool> days = raw.map((e) => e == "true").toList();
+    List<String> raw = _prefs.getStringList('attendance_days') ?? List.filled(7, "false");
+    return raw.map((e) => e == "true").toList();
+  }
 
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final lastDate = prefs.getString('last_attendance_date');
+  // -------------------- 로드 --------------------
 
-    // 오늘 이미 출석했으면 → nextIndex 무효
-    if (lastDate == today) {
-      return days; 
-    }
+  Future<void> load() async {
+    _prefs = await SharedPreferences.getInstance();
+    _gold = _prefs.getInt('gold') ?? AppDefaults.defaultGold;
+    _gems = _prefs.getInt('gems') ?? AppDefaults.defaultGems;
+    _energy = _prefs.getInt('energy') ?? AppDefaults.defaultEnergy;
+    _bgmEnabled = _prefs.getBool('bgmEnabled') ?? true;
+    _effectEnabled = _prefs.getBool('effectEnabled') ?? true;
+    _lastAttendanceDate = _prefs.getString('last_attendance_date');
+    final lastUsedString = _prefs.getString('lastEnergyUsed');
+    _lastEnergyUsed = lastUsedString != null ? DateTime.tryParse(lastUsedString) : DateTime.now();
+    _startEnergyTimer();
+    await loadAllStageResults();
+    notifyListeners();
+  }
 
-    return days;
+  @override
+  void dispose() {
+    _disposed = true;
+    _energyTimer?.cancel();
+    super.dispose();
   }
 }

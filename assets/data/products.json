@@ -133,7 +133,7 @@
     "locked": false,
     "type": "mine",
     "currency": "gem", 
-    "image": "assets/images/skins/thief.png"
+    "image": "assets/images/skins/mine_thief.png"
   },
   {
     "id": "mine_skin_4",
@@ -169,7 +169,7 @@
     "locked": false,
     "type": "flag",
     "currency": "gem", 
-    "image": "assets/images/skins/police.png"
+    "image": "assets/images/skins/flag_police.png"
   },
   {
     "id": "flag_skin_4",
@@ -320,39 +320,129 @@
     "image": "assets/images/avatar/Character_base.png"
   },
   {
-    "id": "hair_dendy",
-    "name": "댄디컷",
-    "price": "200",
-    "locked": false,
-    "type": "hair",
-    "currency": "gem",
-    "image": "assets/images/avatar/hair_dendy.png"
-  },
-  {
-    "id": "shirt_short_red",
-    "name": "빨간반팔",
-    "price": "300",
-    "locked": false,
-    "type": "top",
-    "currency": "gem",
-    "image": "assets/images/avatar/shirt_short_red.png"
-  },
-  {
-    "id": "pants_blue",
-    "name": "파란반바지",
+    "id": "bottom_blueshot_boy",
+    "name": "반바지블루",
     "price": "250",
     "locked": false,
     "type": "bottom",
     "currency": "gem",
-    "image": "assets/images/avatar/pants_blue.png"
+    "image": "assets/images/avatar/bottom_blueshot_boy.png"
   },
   {
-    "id": "slippers_black",
-    "name": "검정 슬리퍼",
+    "id": "top_ironman_boy",
+    "name": "아이언맨상의",
+    "price": "500",
+    "locked": false,
+    "type": "top",
+    "currency": "gem",
+    "image": "assets/images/avatar/top_ironman_boy.png"
+  },
+  {
+    "id": "shoes_baseball",
+    "name": "야구화",
+    "price": "200",
+    "locked": false,
+    "type": "shoes",
+    "currency": "gem",
+    "image": "assets/images/avatar/shoes_baseball.png"
+  },
+  {
+    "id": "bottom_pink_girl",
+    "name": "분홍치마",
+    "price": "250",
+    "locked": false,
+    "type": "bottom",
+    "currency": "gem",
+    "image": "assets/images/avatar/bottom_pink_girl.png"
+  },
+  {
+    "id": "top_blue_girl",
+    "name": "하늘색티",
+    "price": "200",
+    "locked": false,
+    "type": "top",
+    "currency": "gem",
+    "image": "assets/images/avatar/top_blue_girl.png"
+  },
+  {
+    "id": "shoes_slippers",
+    "name": "슬리퍼",
     "price": "150",
     "locked": false,
     "type": "shoes",
     "currency": "gem",
-    "image": "assets/images/avatar/slippers.png"
+    "image": "assets/images/avatar/shoes_slippers.png"
+  },
+  {
+    "id": "hair_blue_boy",
+    "name": "블루파마",
+    "price": "300",
+    "locked": false,
+    "type": "hair",
+    "currency": "gem",
+    "image": "assets/images/avatar/hair_blue_boy.png"
+  },
+  {
+    "id": "bottom_baseball_boy",
+    "name": "야구복 하의",
+    "price": "300",
+    "locked": false,
+    "type": "bottom",
+    "currency": "gem",
+    "image": "assets/images/avatar/bottom_baseball_boy.png"
+  },
+  {
+    "id": "top_baseball_boy",
+    "name": "야구복 상의",
+    "price": "300",
+    "locked": false,
+    "type": "top",
+    "currency": "gem",
+    "image": "assets/images/avatar/top_baseball_boy.png"
+  },
+  {
+    "id": "shoes_pink_girl",
+    "name": "핑크구두",
+    "price": "200",
+    "locked": false,
+    "type": "shoes",
+    "currency": "gem",
+    "image": "assets/images/avatar/shoes_pink_girl.png"
+  },
+  {
+    "id": "hair_yellow_girl",
+    "name": "포니테일",
+    "price": "350",
+    "locked": false,
+    "type": "hair",
+    "currency": "gem",
+    "image": "assets/images/avatar/hair_yellow_girl.png"
+  },
+  {
+    "id": "bottom_ironman_boy",
+    "name": "아이언맨하의",
+    "price": "500",
+    "locked": false,
+    "type": "bottom",
+    "currency": "gem",
+    "image": "assets/images/avatar/bottom_ironman_boy.png"
+  },
+  {
+    "id": "hair_red_girl",
+    "name": "빨간 단발",
+    "price": "300",
+    "locked": false,
+    "type": "hair",
+    "currency": "gem",
+    "image": "assets/images/avatar/hair_red_girl.png"
+  },
+  {
+    "id": "hair_doctor_boy",
+    "name": "과학자",
+    "price": "350",
+    "locked": false,
+    "type": "hair",
+    "currency": "gem",
+    "image": "assets/images/avatar/hair_doctor_boy.png"
   }
 ]

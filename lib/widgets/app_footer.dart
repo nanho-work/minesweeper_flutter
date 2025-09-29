@@ -23,23 +23,19 @@ class AppFooter extends StatelessWidget {
     const double baseIconSize = 52;
     const double selectedScale = 1.5;
     const double itemWidth = 70;
-    const double footerHeight = 74;
+    const double footerHeight = 84;
 
     final double bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withOpacity(0.0),
-            Colors.white.withOpacity(0.9),
-          ],
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/footer/footer_bg.png"),
+          fit: BoxFit.fill,
         ),
       ),
       height: footerHeight + bottomInset,
-      padding: EdgeInsets.only(top: 6, bottom: bottomInset > 0 ? 6 : 8),
+      padding: EdgeInsets.only(top: 0, bottom: bottomInset > 0 ? 6 : 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (index) {
@@ -82,25 +78,29 @@ class AppFooter extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (isSelected) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      items[index]['label']!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black),
-                          Shadow(offset: Offset(-1, 1), blurRadius: 2, color: Colors.black),
-                          Shadow(offset: Offset(1, -1), blurRadius: 2, color: Colors.black),
-                          Shadow(offset: Offset(-1, -1), blurRadius: 2, color: Colors.black),
-                        ],
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 2),
+                  Text(
+                    items[index]['label']!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: isSelected
+                        ? const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black),
+                              Shadow(offset: Offset(-1, 1), blurRadius: 2, color: Colors.black),
+                              Shadow(offset: Offset(1, -1), blurRadius: 2, color: Colors.black),
+                              Shadow(offset: Offset(-1, -1), blurRadius: 2, color: Colors.black),
+                            ],
+                          )
+                        : const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey,
+                          ),
+                  ),
                 ],
               ),
             ),

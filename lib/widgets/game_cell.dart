@@ -24,6 +24,29 @@ class GameCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
+    Color getNumberColor(int number) {
+      switch (number) {
+        case 1:
+          return Colors.blue;
+        case 2:
+          return Colors.green;
+        case 3:
+          return Colors.red;
+        case 4:
+          return Colors.purple;
+        case 5:
+          return Colors.brown; // maroon approximation
+        case 6:
+          return Colors.teal;
+        case 7:
+          return Colors.black;
+        case 8:
+          return Colors.grey;
+        default:
+          return Colors.black;
+      }
+    }
+
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -55,9 +78,9 @@ class GameCell extends StatelessWidget {
                   : (cell.neighborMines > 0
                       ? Text(
                           '${cell.neighborMines}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: getNumberColor(cell.neighborMines),
                           ),
                         )
                       : const SizedBox.shrink()))

@@ -9,6 +9,7 @@ class GameDialog extends StatelessWidget {
   final String? cancelText;
   final VoidCallback? onCancel;
   final IconData? icon;
+  final Color? backgroundColor;
 
   const GameDialog({
     super.key,
@@ -19,6 +20,7 @@ class GameDialog extends StatelessWidget {
     this.cancelText,
     this.onCancel,
     this.icon,
+    this.backgroundColor,
   });
 
   @override
@@ -34,7 +36,7 @@ class GameDialog extends StatelessWidget {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.yellow[100],
+      backgroundColor: backgroundColor ?? Colors.yellow[100],
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

@@ -15,7 +15,7 @@ class EnergyDialog extends StatelessWidget {
       title: "에너지 충전",
       content: "보석 20개로 충전하거나, 광고를 시청하세요.", // ✅ String 그대로
       icon: Icons.flash_on,
-      confirmText: "보석 20개 사용",
+      confirmText: "20 잼",
       onConfirm: () async {
         if (currency.gems >= 20) {
           await currency.spendGems(20);

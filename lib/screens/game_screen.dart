@@ -75,8 +75,9 @@ class _GameScreenState extends State<GameScreen> {
         provider.onGameClear = () async {
           if (provider.checkClearCondition(widget.stage, context)) {
             final appData = Provider.of<AppDataProvider>(context, listen: false);
+
             await appData.saveStageResult(
-              widget.stage.id,
+              stageId: widget.stage.id,
               conditions: [
                 provider.starsEarned >= 1,
                 provider.starsEarned >= 2,
@@ -85,6 +86,9 @@ class _GameScreenState extends State<GameScreen> {
               elapsed: provider.elapsed,
               mistakes: provider.mistakes,
             );
+
+            // ✅ 저장 후 최신 StageResult 불러오기
+            final latestResult = await appData.loadStageResult(widget.stage.id);
 
             SoundService.playVictory();
 
@@ -96,22 +100,22 @@ class _GameScreenState extends State<GameScreen> {
                   onWillPop: () async => false,
                   child: GameDialog(
                     title: "클리어!",
-                    content:
-                        "⭐️ 별: ${provider.starsEarned} / 3\n남은 생명: ${provider.remainingHearts}\n도전 횟수: ${provider.attempts}\n소요 시간: ${provider.elapsed} 초",
-                    confirmText: "다음 스테이지",
-                    cancelText: "스테이지 맵",
+                    content: "⭐️ 별: ${provider.starsEarned} / 3\n"
+                        "남은 생명: ${provider.remainingHearts}\n"
+                        "도전 횟수: ${latestResult?.attempts ?? 1}\n"
+                        "소요 시간: ${provider.elapsed} 초",
+                    confirmText: "다음",
+                    cancelText: "맵",
                     onConfirm: () {
-                      // 현재 스테이지 ID + 1
                       final nextStageId = widget.stage.id + 1;
-                      // 스테이지 리스트에서 다음 스테이지 찾기
                       final stages = sampleStages;
                       final nextStage = stages.firstWhere(
                         (s) => s.id == nextStageId,
                         orElse: () => widget.stage,
                       );
-                      // 다이얼로그 닫기
+
                       Navigator.of(context).pop();
-                      // 새로운 GameScreen으로 이동
+
                       if (nextStage != widget.stage) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
@@ -125,8 +129,8 @@ class _GameScreenState extends State<GameScreen> {
                       }
                     },
                     onCancel: () {
-                      Navigator.of(context).pop(); // 다이얼로그 닫기
-                      widget.onExit();             // ✅ 스테이지 맵으로 복귀
+                      Navigator.of(context).pop();
+                      widget.onExit();
                     },
                   ),
                 ),
@@ -155,7 +159,6 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 child: Column(
                   children: [
-                    const AdBanner(),
                     const GameHeader(),
                     const Expanded(child: GameBoard()),
                     GameCTAbar(

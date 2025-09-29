@@ -31,7 +31,12 @@ class AppHeader extends StatelessWidget {
     }
 
     return Container(
-      color: Colors.transparent,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/header/app_header_bg.png"),
+          fit: BoxFit.fill,
+        ),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Column(
         children: [
@@ -41,9 +46,9 @@ class AppHeader extends StatelessWidget {
               // ===== 리소스 표시 =====
               Row(
                 children: [
-                  _buildResource(Image.asset("assets/icons/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
+                  _buildResource(Image.asset("assets/images/header/gem.png", width: 20, height: 20), currency.gems, Colors.blue),
                   const SizedBox(width: 6),
-                  _buildResource(Image.asset("assets/icons/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
+                  _buildResource(Image.asset("assets/images/header/coin.png", width: 20, height: 20), currency.gold, Colors.amber),
                   const SizedBox(width: 6),
                   _buildResource(
                     const Icon(Icons.flash_on, color: Colors.orange),
